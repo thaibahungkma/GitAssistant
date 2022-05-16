@@ -5,9 +5,17 @@
       <map>
         <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/drawable-v24/bg_icon.xml" value="0.1335" />
         <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/drawable-v24/bg_mic.xml" value="0.1335" />
+        <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/drawable-v24/bg_recyclerview.xml" value="0.1335" />
+        <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/drawable/bg_receiver.xml" value="0.1335" />
         <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/drawable/bg_searchview.xml" value="0.1335" />
-        <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/layout/activity_home.xml" value="0.22" />
+        <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/drawable/bg_sender.xml" value="0.12" />
+        <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.1335" />
+        <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/font/cambo.xml" value="0.18205128205128204" />
+        <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/layout/activity_home.xml" value="0.16" />
         <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/layout/activity_main.xml" value="0.18" />
+        <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/layout/activity_setting.xml" value="0.2" />
+        <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/layout/assistant_item_layout.xml" value="0.36710963455149503" />
+        <entry key="..\:/DoAn/AssistantKotlin/app/src/main/res/layout/tool_bar.xml" value="0.18" />
       </map>
     </option>
   </component>

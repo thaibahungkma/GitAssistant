@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="assistantViewModel"
+            type="com.example.assistantkotlin.assistant.AssistantViewModel" />
+    </data>
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:background="@color/bg"
     android:padding="10dp"
-    tools:context=".HomeActivity">
+    tools:context=".assistant.HomeActivity">
 
     <LinearLayout
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/_10sdp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -22,12 +28,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="9"
+            android:iconifiedByDefault="false"
+            android:queryBackground="@android:color/transparent"
             android:background="@drawable/bg_searchview"
-            android:queryHint="Search" />
+            android:queryHint="Search..." />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/avatarIv"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
             android:src="@drawable/ic_baseline_face_24" />
@@ -106,33 +114,39 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
-            android:id="@+id/emailTv"
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Email"
-            android:textSize="15sp" />
-
-        <Button
-            android:id="@+id/logoutBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Logout" />
+            android:paddingHorizontal="5dp"
+            android:layout_marginTop="20dp"
+            android:text="CHATS"
+            android:textColor="@color/text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:padding="10dp"
-        android:id="@+id/recyclerviewChat"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="370dp"/>
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:layout_marginTop="10dp"
-        android:padding="10dp"
-        android:background="@drawable/bg_mic"
-        android:src="@drawable/ic_baseline_mic_24"
-        android:layout_width="60dp"
-        android:layout_height="60dp"/>
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_360sdp"
+            android:background="@drawable/bg_recyclerview"
+            android:padding="10dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/assistantActionBtn"
+            android:layout_marginTop="10dp"
+            android:layout_below="@id/recyclerview"
+            android:padding="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/bg_mic"
+            android:src="@drawable/ic_baseline_mic_24"
+            android:layout_width="60dp"
+            android:layout_height="60dp"/>
+    </RelativeLayout>
+
 
 
 
 </LinearLayout>
+</layout>

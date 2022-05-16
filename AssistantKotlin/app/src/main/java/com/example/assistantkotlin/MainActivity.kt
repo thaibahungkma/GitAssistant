@@ -5,10 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import com.google.android.gms.auth.account.WorkAccount.getClient
-import com.google.android.gms.auth.api.AuthProxy.getClient
+import com.example.assistantkotlin.assistant.HomeActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignIn.getClient
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -57,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         val firebaseUser= firebaseAuth.currentUser
         if (firebaseUser !=null){
             //user is already logged in
-            startActivity(Intent(this,HomeActivity::class.java))
+            startActivity(Intent(this, HomeActivity::class.java))
             finish()
         }
     }
@@ -107,7 +105,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 //start home activity
-                startActivity(Intent(this,HomeActivity::class.java))
+                startActivity(Intent(this, HomeActivity::class.java))
                 finish()
 
 
