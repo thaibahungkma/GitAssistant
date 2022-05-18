@@ -6,16 +6,14 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraManager
 import android.media.Ringtone
 import android.media.RingtoneManager
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Environment
-import android.os.StrictMode
+import android.os.*
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Telephony
@@ -26,8 +24,6 @@ import android.speech.tts.TextToSpeech
 import android.telephony.SmsManager
 import android.util.Log
 import android.view.MotionEvent
-import android.view.View
-import android.view.ViewTreeObserver
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -36,9 +32,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import com.example.assistantkotlin.assistant.AssistantAdapter
-import com.example.assistantkotlin.assistant.AssistantViewModel
-import com.example.assistantkotlin.assistant.AssistantViewModelFactory
 import com.example.assistantkotlin.MainActivity
 import com.example.assistantkotlin.R
 import com.example.assistantkotlin.data.AssistantDatabase
@@ -87,6 +80,7 @@ class HomeActivity : AppCompatActivity() {
 
     private var imageIndex: Int = 0
     private lateinit var imgUri: Uri
+    private var savedRecognitionEnglish:Boolean = true
 
     //firebase auth
     private lateinit var firebaseAuth: FirebaseAuth
@@ -101,7 +95,6 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        overridePendingTransition(R.anim.non_movale, R.anim.non_movale)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_home)
         supportActionBar?.hide()
         val application = requireNotNull(this).application
@@ -151,14 +144,36 @@ class HomeActivity : AppCompatActivity() {
             checkPermission()
         }
 
+        //get key value from share preferences recognition
+        val sharedPreferences = getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+        val savedRecognition=sharedPreferences?.getString("recognition",null)
+        if (savedRecognition=="English"){
+            savedRecognitionEnglish=true
+        } else if (savedRecognition=="Vietnamese"){
+            savedRecognitionEnglish=false
+        }
+
+
+
         textToSpeech = TextToSpeech(this) { status ->
 
             if (status == TextToSpeech.SUCCESS) {
-                val result: Int = textToSpeech.setLanguage(Locale.ENGLISH)
-                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    Log.e(logtts, "Language not supported")
-                } else {
-                    Log.e(logtts, "Language supported")
+                val result: Int
+                if (savedRecognition=="English"){
+                    result = textToSpeech.setLanguage(Locale.ENGLISH)
+                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Log.e(logtts, "Language not supported")
+                    } else {
+                        Log.e(logtts, "Language supported")
+                    }
+                }
+                else if (savedRecognition=="Vietnamese"){
+                    result= textToSpeech.setLanguage(Locale.forLanguageTag("vi-VI"))
+                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Log.e(logtts, "Language not supported")
+                    } else {
+                        Log.e(logtts, "Language supported")
+                    }
                 }
             } else {
                 Log.e(logtts, "Initialization failed")
@@ -170,6 +185,12 @@ class HomeActivity : AppCompatActivity() {
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
         )
+//        if (savedRecognition=="English"){
+//            recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
+//        }
+//        else if (savedRecognition=="Vietnamese"){
+//            recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VI")
+//        }
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
         speechRecognizer.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(p0: Bundle?) {
@@ -202,45 +223,104 @@ class HomeActivity : AppCompatActivity() {
                 if (data != null) {
                     keeper = data[0]
                     Log.d(logkeeper, keeper)
-                    when {
-                        keeper.lowercase().contains("thank you") -> speak("No problem, it's my job")
-                        keeper.lowercase().contains("welcome") -> speak("for what?")
-                        keeper.lowercase().contains("help me") -> speak("Alright, can i help you ?")
-                        keeper.lowercase().contains("i love you") -> speak("i love you too")
-                        keeper.lowercase().contains("your name") -> speak("My name is Sun Assistant")
-                        keeper.lowercase().contains("created you") -> speak("Thai ba hung created me while working on my graduation project")
-                        keeper.lowercase().contains("clear") -> assistantViewModel.onClear()
-                        keeper.lowercase().contains("date") -> getDate()
-                        keeper.lowercase().contains("what time") -> getTime()
-                        keeper.lowercase().contains("phone call") -> makeAPhoneCall()
-                        keeper.lowercase().contains("send sms") -> sendSMS()
-                        keeper.lowercase().contains("read sms")||keeper.lowercase().contains("read message") -> readSMS()
-                        keeper.lowercase().contains("open gmail") -> openGmail()
-                        keeper.lowercase().contains("open facebook") -> openFaceBook()
-                        keeper.lowercase().contains("open message") -> openMessages()
-                        keeper.lowercase().contains("open instagram") -> openInstagram()
-                        keeper.lowercase().contains("open youtube") -> openYoutube()
-                        keeper.lowercase().contains("open zalo") -> openZalo()
-                        keeper.lowercase().contains("share a file") -> shareAFIle()
-                        keeper.lowercase().contains("share a text message") -> shareATextMessage()
-                        keeper.lowercase().contains("call contact") -> callContact()
-                        keeper.lowercase().contains("turn on bluetooth") -> turnOnBluetooth()
-                        keeper.lowercase().contains("turn off bluetooth") -> turnOffBluetooth()
-                        keeper.lowercase().contains("bluetooth device") -> getAllPaireDevice()
-                        keeper.lowercase().contains("turn on flash") -> turnOnFlash()
-                        keeper.lowercase().contains("turn off flash") -> turnOffFlash()
-                        keeper.lowercase().contains("copy to clipboard") -> clipBoardCopy()
-                        keeper.lowercase().contains("read last clipboard") -> clipBoardSpeak()
-                        keeper.lowercase().contains("capture a photo") || keeper.contains("Take a photo") -> capturePhoto()
-                        keeper.lowercase().contains("play ringtone") -> playRingtone()
-                        keeper.lowercase().contains("stop ringtone") || keeper.contains("Top ringtone") -> stopRingtone()
-                        keeper.lowercase().contains("alarm") -> setAlarm()
-                        keeper.lowercase().contains("weather") -> weather()
-                        keeper.lowercase().contains("joke") -> joke()
-                        keeper.lowercase().contains("question") -> question()
-                        keeper.lowercase().contains("hello") || keeper.contains("hi") || keeper.contains("hey")
-                        -> speak("Hello, how I can help you?")
-                        else -> speak("Sorry, please try again")}
+                    //English recognition
+                    if (savedRecognition=="English"){
+                        when {
+                            keeper.lowercase().contains("thank you") -> speak("No problem, it's my job")
+                            keeper.lowercase().contains("welcome") -> speak("for what?")
+                            keeper.lowercase().contains("help me") -> speak("Alright, can i help you ?")
+                            keeper.lowercase().contains("i love you") -> speak("i love you too")
+                            keeper.lowercase().contains("your name") -> speak("My name is Sun Assistant")
+                            keeper.lowercase().contains("created you") -> speak("Thai ba hung created me while working on my graduation project")
+                            keeper.lowercase().contains("clear") -> assistantViewModel.onClear()
+                            keeper.lowercase().contains("date") -> getDate()
+                            keeper.lowercase().contains("what time") -> getTime()
+                            keeper.lowercase().contains("phone call") -> makeAPhoneCall()
+                            keeper.lowercase().contains("send sms") -> sendSMS()
+                            keeper.lowercase().contains("read sms")||keeper.lowercase().contains("read message") -> readSMS()
+                            keeper.lowercase().contains("open gmail") -> openGmail()
+                            keeper.lowercase().contains("open facebook") -> openFaceBook()
+                            keeper.lowercase().contains("open message") -> openMessages()
+                            keeper.lowercase().contains("open instagram") -> openInstagram()
+                            keeper.lowercase().contains("open youtube") -> openYoutube()
+                            keeper.lowercase().contains("open zalo") -> openZalo()
+                            keeper.lowercase().contains("open browser") ||keeper.lowercase().contains("open chrome")-> openChrome()
+                            keeper.lowercase().contains("open messenger")-> openMessenger()
+                            keeper.lowercase().contains("open google translate")-> openGooleTranslate()
+                            keeper.lowercase().contains("open netflix")-> openNetflix()
+                            keeper.lowercase().contains("open zing mp3")||keeper.lowercase().contains("play music") ->openZingMp3()
+                            keeper.lowercase().contains("open google map")||keeper.lowercase().contains("open map")-> openGoogleMap()
+                            keeper.lowercase().contains("share a file") -> shareAFIle()
+                            keeper.lowercase().contains("share a text message") -> shareATextMessage()
+                            keeper.lowercase().contains("call contact") -> callContact()
+                            keeper.lowercase().contains("turn on bluetooth") -> turnOnBluetooth()
+                            keeper.lowercase().contains("turn off bluetooth") -> turnOffBluetooth()
+                            keeper.lowercase().contains("bluetooth device") -> getAllPaireDevice()
+                            keeper.lowercase().contains("turn on flash") -> turnOnFlash()
+                            keeper.lowercase().contains("turn off flash") -> turnOffFlash()
+                            keeper.lowercase().contains("copy to clipboard") -> clipBoardCopy()
+                            keeper.lowercase().contains("read last clipboard") -> clipBoardSpeak()
+                            keeper.lowercase().contains("capture a photo") || keeper.contains("Take a photo") -> capturePhoto()
+                            keeper.lowercase().contains("play ringtone") -> playRingtone()
+                            keeper.lowercase().contains("stop ringtone") || keeper.contains("Top ringtone") -> stopRingtone()
+                            keeper.lowercase().contains("alarm") -> setAlarm()
+                            keeper.lowercase().contains("weather") -> weather()
+                            keeper.lowercase().contains("joke") -> joke()
+                            keeper.lowercase().contains("question") -> question()
+                            keeper.lowercase().contains("hello") || keeper.contains("hi") || keeper.contains("hey")
+                            -> speak("Hello, how I can help you?")
+                            else -> speak("Sorry, please try again")}
+                    }
+                    else if (savedRecognition=="Vietnamese"){
+                        var ketqua=convert(keeper)!!.lowercase()
+                        when {
+                            ketqua.contains("cam on") -> speak("Không có chi, hí hí")
+                            ketqua.contains("choi game") -> speak("Lo làm lo học đi bạn, chơi ít thôi")
+                            ketqua.contains("giup toi") -> speak("tất nhiên rồi, tôi có thể giúp gì cho bạn ?")
+                            ketqua.contains("anh yeu em") ||ketqua.contains("toi yeu ban") || ketqua.contains("em yeu anh")-> speak("tôi cũng yêu bạn")
+                            ketqua.contains("ten ban") -> speak("Tên tôi là trợ lý Sun")
+                            ketqua.contains("tao ra ban") ||ketqua.contains("tao ban")||ketqua.contains("lap trinh ban")-> speak("Anh Hùng đẹp trai lập trình nên tôi lúc làm đồ án")
+                            ketqua.contains("xoa chat") -> assistantViewModel.onClear()
+                            ketqua.contains("hom nay ngay bao nhieu") ||ketqua.contains("hom nay la ngay bao nhieu")||ketqua.contains("hom nay ngay may")||ketqua.contains("ngay thang")-> getDate()
+                            ketqua.contains("may gio")||ketqua.contains("xem gio") -> getTime()
+                            ketqua.contains("goi dien") -> makeAPhoneCall()
+                            ketqua.contains("gui tin nhan") -> sendSMS()
+                            ketqua.contains("doc tin nhan")||ketqua.contains("doc sms") -> readSMS()
+                            ketqua.contains("mo gmail") -> openGmail()
+                            ketqua.contains("mo facebook") -> openFaceBook()
+                            ketqua.contains("mo message") -> openMessages()
+                            ketqua.contains("mo instagram") -> openInstagram()
+                            ketqua.contains("mo youtube") -> openYoutube()
+                            ketqua.contains("mo zalo") -> openZalo()
+                            ketqua.contains("mo trinh duyet") ||ketqua.contains("mo chrome")-> openChrome()
+                            ketqua.contains("mo messenger")-> openMessenger()
+                            ketqua.contains("mo google dich")-> openGooleTranslate()
+                            ketqua.contains("mo netflix")||ketqua.contains("xem netflix")-> openNetflix()
+                            ketqua.contains("mo zing mp3")->openZingMp3()
+                            ketqua.contains("nghe nhac")-> openZingMp3ne()
+                            ketqua.contains("mo google map")||ketqua.contains("mo ban do")-> openGoogleMap()
+                            ketqua.contains("share a file") -> shareAFIle()
+                            ketqua.contains("share a text message") -> shareATextMessage()
+                            ketqua.contains("goi danh ba") -> callContact()
+                            ketqua.contains("bat bluetooth") -> turnOnBluetooth()
+                            ketqua.contains("tat bluetooth") -> turnOffBluetooth()
+                            ketqua.contains("thiet bi bluetooth") -> getAllPaireDevice()
+                            ketqua.contains("bat flash") ||ketqua.contains("bat den pin")-> turnOnFlash()
+                            ketqua.contains("tat flash") ||ketqua.contains("tat den pin")-> turnOffFlash()
+                            ketqua.contains("copy vao bo nho") ||ketqua.contains("sao chep")-> clipBoardCopy()
+                            ketqua.contains("doc bo nho tam") -> clipBoardSpeak()
+                            ketqua.contains("chup anh") || ketqua.contains("may anh") -> capturePhoto()
+                            ketqua.contains("play ringtone")||ketqua.contains("bat nhac chuong") -> playRingtone()
+                            ketqua.contains("stop ringtone") || ketqua.contains("dung nhac") -> stopRingtone()
+                            keeper.lowercase().contains("alarm") -> setAlarm()
+                            keeper.lowercase().contains("weather") -> weather()
+                            keeper.lowercase().contains("joke") -> joke()
+                            keeper.lowercase().contains("question") -> question()
+                            ketqua.contains("xin chao") || ketqua.contains("hi") || ketqua.contains("hey")
+                            -> speak("Chào bạn, bạn có cần tôi giúp gì?")
+                            else -> speak("Xin lỗi, vui lòng thử lại")}
+                    }
+
 
                 }
             }
@@ -272,6 +352,24 @@ class HomeActivity : AppCompatActivity() {
         }
         checkIfSpeechRecognizerAvailable()
     }
+    fun convert(str: String): String? {
+        var str = str
+        str = str.replace("à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ".toRegex(), "a")
+        str = str.replace("è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ".toRegex(), "e")
+        str = str.replace("ì|í|ị|ỉ|ĩ".toRegex(), "i")
+        str = str.replace("ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ".toRegex(), "o")
+        str = str.replace("ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ".toRegex(), "u")
+        str = str.replace("ỳ|ý|ỵ|ỷ|ỹ".toRegex(), "y")
+        str = str.replace("đ".toRegex(), "d")
+        str = str.replace("À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ".toRegex(), "A")
+        str = str.replace("È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ".toRegex(), "E")
+        str = str.replace("Ì|Í|Ị|Ỉ|Ĩ".toRegex(), "I")
+        str = str.replace("Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ".toRegex(), "O")
+        str = str.replace("Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ".toRegex(), "U")
+        str = str.replace("Ỳ|Ý|Ỵ|Ỷ|Ỹ".toRegex(), "Y")
+        str = str.replace("Đ".toRegex(), "D")
+        return str
+    }
 
 
     private fun checkIfSpeechRecognizerAvailable() {
@@ -294,7 +392,13 @@ class HomeActivity : AppCompatActivity() {
         val formattedDate = DateFormat.getDateInstance(DateFormat.FULL).format(calendar.time)
         val splitDate = formattedDate.split(",").toTypedArray()
         val date = splitDate[1].trim() { it <= ' ' }
-        speak("The date is $date")
+
+        if (savedRecognitionEnglish==true){
+            speak("The date is $date")
+        }
+        else{
+            speak("Hôm nay là $date")
+        }
     }
 
     //get Time current to Speech
@@ -302,7 +406,13 @@ class HomeActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         val format = SimpleDateFormat("HH:mm:ss")
         val time: String = format.format(calendar.getTime())
-        speak("The time is $time")
+        if (savedRecognitionEnglish==true){
+            speak("The time is $time")
+        }
+        else{
+            speak("Bây giờ là $time")
+        }
+
     }
 
     //Phone call number
@@ -374,26 +484,128 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun openFaceBook() {
+        if (savedRecognitionEnglish==true){
+            speak("Opening Facebook")
+        }
+        else{
+            speak("Đang mở Facebook")
+        }
         val intent = packageManager.getLaunchIntentForPackage("com.facebook.katana")
         intent?.let { startActivity(it) }
     }
+    private fun openChrome() {
+        if (savedRecognitionEnglish==true){
+            speak("Opening Chrome")
+        }
+        else{
+            speak("Đang mở trình duyệt")
+        }
+        val intent = packageManager.getLaunchIntentForPackage("com.android.chrome")
+        intent?.let { startActivity(it) }
+    }
+    private fun openGoogleMap() {
+        if (savedRecognitionEnglish==true){
+            speak("Opening Google Map")
+        }
+        else{
+            speak("Đang mở bản đồ")
+        }
+        val intent = packageManager.getLaunchIntentForPackage("com.google.android.apps.maps")
+        intent?.let { startActivity(it) }
+    }
+    private fun openGooleTranslate() {
+        if (savedRecognitionEnglish==true){
+            speak("Opening Google Translate")
+        }
+        else{
+            speak("Đang mở Google Dịch")
+        }
+        val intent = packageManager.getLaunchIntentForPackage("com.google.android.apps.translate")
+        intent?.let { startActivity(it) }
+    }
+    private fun openZingMp3() {
+        if (savedRecognitionEnglish==true){
+            speak("Opening Zing Mp3")
+        }
+        else{
+            speak("Đang mở Zing mp3")
+        }
+        val intent = packageManager.getLaunchIntentForPackage("com.zing.mp3")
+        intent?.let { startActivity(it) }
+    }
+    private fun openZingMp3ne() {
+        if (savedRecognitionEnglish==true){
+            speak("you can listen to music on Zing Mp3")
+        }
+        else{
+            speak("Lên Zing mp3 nghe nhạc cực chất nhé bạn")
+        }
+        val intent = packageManager.getLaunchIntentForPackage("com.zing.mp3")
+        intent?.let { startActivity(it) }
+    }
+    private fun openNetflix() {
+        if (savedRecognitionEnglish==true){
+            speak("Opening Netflix")
+        }
+        else{
+            speak("Đang mở Netflix")
+        }
+        val intent = packageManager.getLaunchIntentForPackage("com.netflix.mediaclient")
+        intent?.let { startActivity(it) }
+    }
+    private fun openMessenger() {
+        if (savedRecognitionEnglish==true){
+            speak("Opening Messenger")
+        }
+        else{
+            speak("Đang mở Messenger")
+        }
+        val intent = packageManager.getLaunchIntentForPackage("com.facebook.orca")
+        intent?.let { startActivity(it) }
+    }
+
+
 
     private fun openGmail() {
+        if (savedRecognitionEnglish==true){
+            speak("Opening Gmail")
+        }
+        else{
+            speak("Đang mở Gmail")
+        }
         val intent = packageManager.getLaunchIntentForPackage("com.google.android.gm")
         intent?.let { startActivity(it) }
     }
 
     private fun openYoutube() {
+        if (savedRecognitionEnglish==true){
+            speak("Opening Youtube")
+        }
+        else{
+            speak("Đang mở Youtube")
+        }
         val intent = packageManager.getLaunchIntentForPackage("com.google.android.youtube")
         intent?.let { startActivity(it) }
     }
 
     private fun openInstagram() {
+        if (savedRecognitionEnglish==true){
+            speak("Opening Instagram")
+        }
+        else{
+            speak("Đang mở Instagram")
+        }
         val intent = packageManager.getLaunchIntentForPackage("com.instagram.android")
         intent?.let { startActivity(it) }
     }
 
     private fun openZalo() {
+        if (savedRecognitionEnglish==true){
+            speak("Opening Zalo")
+        }
+        else{
+            speak("Đang mở Zalo")
+        }
         val intent = packageManager.getLaunchIntentForPackage("com.zing.zalo")
         intent?.let { startActivity(it) }
     }
@@ -492,67 +704,49 @@ class HomeActivity : AppCompatActivity() {
 
     private fun turnOnBluetooth() {
         if (!bluetoothAdapter.isEnabled()) {
-            speak("Turning On Bluetooth")
+            if (savedRecognitionEnglish==true){
+                speak("Turning On Bluetooth")
+            }
+            else{
+                speak("Đang bật Bluetooth")
+            }
+
             val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-//            if (ActivityCompat.checkSelfPermission(
-//                    this,
-//                    Manifest.permission.BLUETOOTH_CONNECT
-//                ) != PackageManager.PERMISSION_GRANTED
-//            ) {
-//                // TODO: Consider calling
-//                //    ActivityCompat#requestPermissions
-//                // here to request the missing permissions, and then overriding
-//                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//                //                                          int[] grantResults)
-//                // to handle the case where the user grants the permission. See the documentation
-//                // for ActivityCompat#requestPermissions for more details.
-//                return
-//            }
+
             startActivityForResult(intent, REQUEST_ENABLE_BT)
         } else {
-            speak("Bluetooth is already On")
+            if (savedRecognitionEnglish==true){
+                speak("Bluetooth is already On")
+            }
+            else{
+                speak("Bluetooth đã được bật")
+            }
+
         }
     }
 
     private fun turnOffBluetooth() {
         if (bluetoothAdapter.isEnabled()) {
-//            if (ActivityCompat.checkSelfPermission(
-//                    this,
-//                    Manifest.permission.BLUETOOTH_CONNECT
-//                ) != PackageManager.PERMISSION_GRANTED
-//            ) {
-//                // TODO: Consider calling
-//                //    ActivityCompat#requestPermissions
-//                // here to request the missing permissions, and then overriding
-//                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//                //                                          int[] grantResults)
-//                // to handle the case where the user grants the permission. See the documentation
-//                // for ActivityCompat#requestPermissions for more details.
-//                return
-//            }
             bluetoothAdapter.disable()
-            speak("Turning Bluetooth Off")
+            if (savedRecognitionEnglish==true){
+                speak("Turning Off Bluetooth")
+            }
+            else{
+                speak("Đang tắt Bluetooth")
+            }
         } else {
-            speak("Bluetooth is already Off")
+            if (savedRecognitionEnglish==true){
+                speak("Bluetooth is already Off")
+            }
+            else{
+                speak("Bluetooth đã tắt rồi")
+            }
+
         }
     }
 
     private fun getAllPaireDevice() {
         if (bluetoothAdapter.isEnabled()) {
-//            if (ActivityCompat.checkSelfPermission(
-//                    this,
-//                    Manifest.permission.BLUETOOTH_CONNECT
-//                ) != PackageManager.PERMISSION_GRANTED
-//            ) {
-//                // TODO: Consider calling
-//                //    ActivityCompat#requestPermissions
-//                // here to request the missing permissions, and then overriding
-//                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//                //                                          int[] grantResults)
-//                // to handle the case where the user grants the permission. See the documentation
-//                // for ActivityCompat#requestPermissions for more details.
-//                return
-//            }
             speak("Paired Devices are")
             var text = ""
             var count = 1
@@ -572,7 +766,13 @@ class HomeActivity : AppCompatActivity() {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 cameraManager.setTorchMode(cameraID, true)
-                speak("Flash turned on")
+                if (savedRecognitionEnglish==true){
+                    speak("Flash turned on")
+                }
+                else{
+                    speak("Đã bật đèn pin")
+                }
+
             }
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
@@ -584,6 +784,12 @@ class HomeActivity : AppCompatActivity() {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 cameraManager.setTorchMode(cameraID, false)
+                if (savedRecognitionEnglish==true){
+                    speak("Flash turned off")
+                }
+                else{
+                    speak("Đã tắt đèn pin")
+                }
             }
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
@@ -636,14 +842,28 @@ class HomeActivity : AppCompatActivity() {
             val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri)
             startActivity(cameraIntent)
-            speak("Photo will be saved to $file")
+            if (savedRecognitionEnglish==true){
+                speak("Photo will be saved to $file")
+            }
+            else{
+                speak("Ảnh đã được lưu ở $file")
+            }
+
 
         }
     }
 
     private fun playRingtone() {
-        speak("Playing Ringtone")
+        if (savedRecognitionEnglish==true){
+            speak("Playing Ringtone")
+        }
+        else{
+            speak("Đang bật nhạc chuông")
+        }
         ringtone.play()
+        Handler().postDelayed({
+            ringtone.stop()
+        }, 6000)
     }
 
     private fun stopRingtone() {
@@ -800,6 +1020,11 @@ class HomeActivity : AppCompatActivity() {
                     .into(avatarIv)
             }
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
     }
 
 }

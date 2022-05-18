@@ -35,6 +35,12 @@
         <package android:name="com.google.android.youtube" />
         <package android:name="com.instagram.android" />
         <package android:name="com.zing.zalo" />
+        <package android:name="com.android.chrome" />
+        <package android:name="com.google.android.apps.translate" />
+        <package android:name="com.facebook.orca" />
+        <package android:name="com.netflix.mediaclient" />
+        <package android:name="com.zing.mp3" />
+        <package android:name="com.google.android.apps.maps" />
     </queries>
     <queries>
         <intent>

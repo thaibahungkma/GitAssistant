@@ -4,9 +4,9 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.appcompat.app.ActionBar
 import com.example.assistantkotlin.MainActivity
 import com.example.assistantkotlin.R
+import com.example.assistantkotlin.fragment.RecognitionSettingFragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
@@ -23,17 +23,26 @@ class SettingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setting)
+
+        //back btn setOnclick
         backToolbarBtn.setOnClickListener {
             startActivity(Intent(this, HomeActivity::class.java))
-            overridePendingTransition(R.anim.slide_left,R.anim.slide_right)
+//            overridePendingTransition(R.anim.slide_right,R.anim.slide_left)
         }
 
         //init firebase auth
         firebaseAuth = FirebaseAuth.getInstance()
         checkUser()
+        //Logout btn
         LnLogout.setOnClickListener {
             firebaseAuth.signOut()
             checkUser()
+        }
+
+        //Recognition language setting
+        LnRecognitionLanguage.setOnClickListener {
+            var dialog = RecognitionSettingFragment()
+            dialog.show(supportFragmentManager,"Recognition Language Setting")
         }
 
     }
@@ -68,6 +77,6 @@ class SettingActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         startActivity(Intent(this, HomeActivity::class.java))
-        overridePendingTransition(R.anim.slide_left,R.anim.slide_right)
+//        overridePendingTransition(R.anim.slide_right,R.anim.slide_left)
     }
 }
