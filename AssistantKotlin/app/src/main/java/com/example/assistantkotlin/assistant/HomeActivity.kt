@@ -14,6 +14,7 @@ import android.media.Ringtone
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.*
+import android.provider.AlarmClock
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.provider.Telephony
@@ -32,6 +33,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.example.assistantkotlin.MainActivity
 import com.example.assistantkotlin.R
 import com.example.assistantkotlin.data.AssistantDatabase
@@ -40,6 +44,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_home.*
+import org.json.JSONException
+import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.text.DateFormat
@@ -226,6 +232,7 @@ class HomeActivity : AppCompatActivity() {
                     //English recognition
                     if (savedRecognition=="English"){
                         when {
+                            keeper.lowercase().contains("recommend")|| keeper.lowercase().contains("tutorial")-> speak("Hi, my name is Sun assistant, i can help you to do some task, please give your command by voice")
                             keeper.lowercase().contains("thank you") -> speak("No problem, it's my job")
                             keeper.lowercase().contains("welcome") -> speak("for what?")
                             keeper.lowercase().contains("help me") -> speak("Alright, can i help you ?")
@@ -246,7 +253,7 @@ class HomeActivity : AppCompatActivity() {
                             keeper.lowercase().contains("open zalo") -> openZalo()
                             keeper.lowercase().contains("open browser") ||keeper.lowercase().contains("open chrome")-> openChrome()
                             keeper.lowercase().contains("open messenger")-> openMessenger()
-                            keeper.lowercase().contains("open google translate")-> openGooleTranslate()
+                            keeper.lowercase().contains("open google translate")-> openGoogleTranslate()
                             keeper.lowercase().contains("open netflix")-> openNetflix()
                             keeper.lowercase().contains("open zing mp3")||keeper.lowercase().contains("play music") ->openZingMp3()
                             keeper.lowercase().contains("open google map")||keeper.lowercase().contains("open map")-> openGoogleMap()
@@ -264,7 +271,7 @@ class HomeActivity : AppCompatActivity() {
                             keeper.lowercase().contains("play ringtone") -> playRingtone()
                             keeper.lowercase().contains("stop ringtone") || keeper.contains("Top ringtone") -> stopRingtone()
                             keeper.lowercase().contains("alarm") -> setAlarm()
-                            keeper.lowercase().contains("weather") -> weather()
+                            keeper.lowercase().contains("weather")||keeper.lowercase().contains("weather now") -> GetCurrentWeatherDataEnglish()
                             keeper.lowercase().contains("joke") -> joke()
                             keeper.lowercase().contains("question") -> question()
                             keeper.lowercase().contains("hello") || keeper.contains("hi") || keeper.contains("hey")
@@ -274,7 +281,10 @@ class HomeActivity : AppCompatActivity() {
                     else if (savedRecognition=="Vietnamese"){
                         var ketqua=convert(keeper)!!.lowercase()
                         when {
+                            ketqua.contains("gioi thieu") -> speak("Chào bạn, tôi là trợ lý Sun. Tôi có thể giúp bạn thực hiện một số công việc, bạn hãy ra lệnh cho tôi bằng giọng nói")
                             ketqua.contains("cam on") -> speak("Không có chi, hí hí")
+                            ketqua.contains("hat bai")||ketqua.contains("hat mot bai")||ketqua.contains("sing a song")
+                            -> speak("Cơ hội cho tôi thể hiện đây rồi, bạn hãy lắng nghe nhé. Một con vịt xòe ra hai cái cánh, nó kêu rằng quác quác quác, quạc quạc quạc ")
                             ketqua.contains("choi game") -> speak("Lo làm lo học đi bạn, chơi ít thôi")
                             ketqua.contains("giup toi") -> speak("tất nhiên rồi, tôi có thể giúp gì cho bạn ?")
                             ketqua.contains("anh yeu em") ||ketqua.contains("toi yeu ban") || ketqua.contains("em yeu anh")-> speak("tôi cũng yêu bạn")
@@ -294,7 +304,7 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("mo zalo") -> openZalo()
                             ketqua.contains("mo trinh duyet") ||ketqua.contains("mo chrome")-> openChrome()
                             ketqua.contains("mo messenger")-> openMessenger()
-                            ketqua.contains("mo google dich")-> openGooleTranslate()
+                            ketqua.contains("mo google dich")-> openGoogleTranslate()
                             ketqua.contains("mo netflix")||ketqua.contains("xem netflix")-> openNetflix()
                             ketqua.contains("mo zing mp3")->openZingMp3()
                             ketqua.contains("nghe nhac")-> openZingMp3ne()
@@ -312,11 +322,11 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("chup anh") || ketqua.contains("may anh") -> capturePhoto()
                             ketqua.contains("play ringtone")||ketqua.contains("bat nhac chuong") -> playRingtone()
                             ketqua.contains("stop ringtone") || ketqua.contains("dung nhac") -> stopRingtone()
-                            keeper.lowercase().contains("alarm") -> setAlarm()
-                            keeper.lowercase().contains("weather") -> weather()
-                            keeper.lowercase().contains("joke") -> joke()
-                            keeper.lowercase().contains("question") -> question()
-                            ketqua.contains("xin chao") || ketqua.contains("hi") || ketqua.contains("hey")
+                            ketqua.contains("dat bao thuc") -> setAlarm()
+                            ketqua.contains("thoi tiet")-> GetCurrentWeatherData()
+                            ketqua.contains("joke") -> joke()
+                            ketqua.contains("question") -> question()
+                            ketqua.contains("xin chao") || ketqua.contains("hi") || ketqua.contains("hey")||ketqua.contains("hello")
                             -> speak("Chào bạn, bạn có cần tôi giúp gì?")
                             else -> speak("Xin lỗi, vui lòng thử lại")}
                     }
@@ -383,7 +393,7 @@ class HomeActivity : AppCompatActivity() {
     //speak text
     fun speak(text: String) {
         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
-        assistantViewModel.sendMessageToDatabase(keeper,text)
+        assistantViewModel.sendMessageToDatabase(text,keeper)
     }
 
     //get Date to speech
@@ -513,7 +523,7 @@ class HomeActivity : AppCompatActivity() {
         val intent = packageManager.getLaunchIntentForPackage("com.google.android.apps.maps")
         intent?.let { startActivity(it) }
     }
-    private fun openGooleTranslate() {
+    private fun openGoogleTranslate() {
         if (savedRecognitionEnglish==true){
             speak("Opening Google Translate")
         }
@@ -879,14 +889,148 @@ class HomeActivity : AppCompatActivity() {
     private fun question() {
 
     }
-
+    //set Alarm with Vietnamese
+    //command dat bao thuc luc HH gio MM phut
     private fun setAlarm() {
-        TODO("Not yet implemented")
+        // handling Hour
+        val keeperSlpit = convert(keeper)!!.replace(" ".toRegex(),"").split("c").toTypedArray()
+        val time:String
+        if (convert(keeper)!!.contains("luc")){
+             time =keeperSlpit[2]
+        } else{
+             time =keeperSlpit[1]
+        }
+        val getHour=time.split(":").toTypedArray()
+        val hour=getHour[0]//get hour String
+        val HOUR=hour.toInt()
+        // handling Minute
+        val minute=getHour[1]// get minute String
+        val MINUTE=minute.toInt()
+        //set alarm, intent to Alarm Clock
+        val intent = Intent(AlarmClock.ACTION_SET_ALARM)
+        intent.putExtra(AlarmClock.EXTRA_HOUR, HOUR)
+        intent.putExtra(AlarmClock.EXTRA_MINUTES, MINUTE)
+        if (HOUR <= 24 && MINUTE <= 60) {
+            startActivity(intent)
+        } else{
+            speak("Thời gian bạn yêu cầu không chính xác, vui lòng thử lại")
+        }
+        speak("Đã đặt báo thức lúc $HOUR giờ $MINUTE phút")
+    }
+    //get weather with Vietnamese recognition
+    private fun GetCurrentWeatherData() {
+        //split keeper
+
+        val keeperSlpit = convert(keeper)!!.replace(" ".toRegex(),"").split("t").toTypedArray()
+        val city =keeperSlpit[3]
+        val citySpeak=keeper.split("t").toTypedArray()
+        val citySpeakFull=citySpeak[3]
+        val requestQueue = Volley.newRequestQueue(this)
+        val url =
+            "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=f832efb17766467eb502d5d1145d7424&units=metric"
+        val stringRequest = StringRequest(
+            Request.Method.GET, url,
+            { response ->
+                try {
+                    val jsonObject = JSONObject(response)
+                    val day = jsonObject.getString("dt")
+//                    val name = jsonObject.getString("name")
+                    val l = java.lang.Long.valueOf(day)
+                    val date = Date(l * 1000L)
+                    val simpleDateFormat = SimpleDateFormat("EEEE dd-MM-yyyy")
+                    val Day = simpleDateFormat.format(date)
+                    val jsonArrayWeather = jsonObject.getJSONArray("weather")
+                    val jsonObjectWeather = jsonArrayWeather.getJSONObject(0)
+                    val status = jsonObjectWeather.getString("main")
+                    var STATUS:String =""
+                    if (savedRecognitionEnglish==false){
+                        when{
+                            status=="Clouds"->STATUS="Trời có mây"
+                            status=="Clear"->STATUS="Trời nắng"
+                            status=="Rain"->STATUS="Trời mưa"
+                        }
+                    }
+
+                    //main
+                    val jsonObjectMain = jsonObject.getJSONObject("main")
+                    val temp = jsonObjectMain.getString("temp")
+                    val humidity = jsonObjectMain.getString("humidity")
+                    //covert temp
+                    val a = java.lang.Double.valueOf(temp)
+                    val Temp = a.toInt().toString()
+                    //speak
+                    speak("""
+                        Thời tiết khu vực $citySpeakFull 
+                        $Day
+                        $STATUS
+                        Nhiệt độ là $Temp độ C
+                        Độ ẩm $humidity %
+                        
+                    """.trimIndent())
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+            }
+        ) { speak("Vui lòng thử lại câu lệnh, ví dụ : Thời tiết Hà Nội")}
+        requestQueue.add(stringRequest)
     }
 
-    private fun weather() {
-        TODO("Not yet implemented")
+    //get weather with English recognition
+    private fun GetCurrentWeatherDataEnglish() {
+        //split keeper
+
+        val keeperSlpit = convert(keeper)!!.replace(" ".toRegex(),"").split("w").toTypedArray()
+        val city =keeperSlpit[0]
+        val requestQueue = Volley.newRequestQueue(this)
+        val url =
+            "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=f832efb17766467eb502d5d1145d7424&units=metric"
+        val stringRequest = StringRequest(
+            Request.Method.GET, url,
+            { response ->
+                try {
+                    val jsonObject = JSONObject(response)
+                    val day = jsonObject.getString("dt")
+                    val name = jsonObject.getString("name")
+                    val l = java.lang.Long.valueOf(day)
+                    val date = Date(l * 1000L)
+                    val simpleDateFormat = SimpleDateFormat("dd-MM-yyyy")
+                    val Day = simpleDateFormat.format(date)
+                    val jsonArrayWeather = jsonObject.getJSONArray("weather")
+                    val jsonObjectWeather = jsonArrayWeather.getJSONObject(0)
+                    val status = jsonObjectWeather.getString("main")
+                    var STATUS:String =""
+                    if (savedRecognitionEnglish==false){
+                        when{
+                            status=="Clouds"->STATUS="Sky is cloudy"
+                            status=="Clear"->STATUS="Sky is clear"
+                            status=="Rain"->STATUS="It's raining"
+                        }
+                    }
+
+                    //main
+                    val jsonObjectMain = jsonObject.getJSONObject("main")
+                    val temp = jsonObjectMain.getString("temp")
+                    val humidity = jsonObjectMain.getString("humidity")
+                    //covert temp
+                    val a = java.lang.Double.valueOf(temp)
+                    val Temp = a.toInt().toString()
+                    //speak
+                    speak("""
+                        Current weather in $name 
+                        $Day
+                        $STATUS
+                        The temperature is $Temp degrees Celsius
+                        humidity is $humidity percent
+                        
+                    """.trimIndent())
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+            }
+        ) { speak("Please try again, for example : Ha Noi weather")}
+        requestQueue.add(stringRequest)
     }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onRequestPermissionsResult(
