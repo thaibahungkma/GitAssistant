@@ -2,12 +2,10 @@ package com.example.assistantkotlin.assistant
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.SearchManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraManager
 import android.media.Ringtone
@@ -242,7 +240,7 @@ class HomeActivity : AppCompatActivity() {
                             keeper.lowercase().contains("clear") -> assistantViewModel.onClear()
                             keeper.lowercase().contains("date") -> getDate()
                             keeper.lowercase().contains("what time") -> getTime()
-                            keeper.lowercase().contains("phone call") -> makeAPhoneCall()
+                            keeper.lowercase().contains("phone call") -> makeNumberCall()
                             keeper.lowercase().contains("send sms") -> sendSMS()
                             keeper.lowercase().contains("read sms")||keeper.lowercase().contains("read message") -> readSMS()
                             keeper.lowercase().contains("open gmail") -> openGmail()
@@ -270,10 +268,9 @@ class HomeActivity : AppCompatActivity() {
                             keeper.lowercase().contains("capture a photo") || keeper.contains("Take a photo") -> capturePhoto()
                             keeper.lowercase().contains("play ringtone") -> playRingtone()
                             keeper.lowercase().contains("stop ringtone") || keeper.contains("Top ringtone") -> stopRingtone()
-                            keeper.lowercase().contains("alarm") -> setAlarm()
-                            keeper.lowercase().contains("weather")||keeper.lowercase().contains("weather now") -> GetCurrentWeatherDataEnglish()
-                            keeper.lowercase().contains("joke") -> joke()
-                            keeper.lowercase().contains("question") -> question()
+                            keeper.lowercase().contains("search google") -> googleSearch()
+                            keeper.lowercase().contains("search youtube") -> youtubeSearch()
+                            keeper.lowercase().contains("weather") -> GetCurrentWeatherDataEnglish()
                             keeper.lowercase().contains("hello") || keeper.contains("hi") || keeper.contains("hey")
                             -> speak("Hello, how I can help you?")
                             else -> speak("Sorry, please try again")}
@@ -293,8 +290,8 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("xoa chat") -> assistantViewModel.onClear()
                             ketqua.contains("hom nay ngay bao nhieu") ||ketqua.contains("hom nay la ngay bao nhieu")||ketqua.contains("hom nay ngay may")||ketqua.contains("ngay thang")-> getDate()
                             ketqua.contains("may gio")||ketqua.contains("xem gio") -> getTime()
-                            ketqua.contains("goi dien") -> makeAPhoneCall()
-                            ketqua.contains("gui tin nhan") -> sendSMS()
+                            ketqua.contains("goi so")||ketqua.contains("goi dien so") -> makeNumberCall()
+                            ketqua.contains("gui sms") -> sendSMS()
                             ketqua.contains("doc tin nhan")||ketqua.contains("doc sms") -> readSMS()
                             ketqua.contains("mo gmail") -> openGmail()
                             ketqua.contains("mo facebook") -> openFaceBook()
@@ -324,9 +321,12 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("stop ringtone") || ketqua.contains("dung nhac") -> stopRingtone()
                             ketqua.contains("dat bao thuc") -> setAlarm()
                             ketqua.contains("thoi tiet")-> GetCurrentWeatherData()
-                            ketqua.contains("joke") -> joke()
-                            ketqua.contains("question") -> question()
-                            ketqua.contains("xin chao") || ketqua.contains("hi") || ketqua.contains("hey")||ketqua.contains("hello")
+                            ketqua.contains("tim google") -> googleSearch()
+                            ketqua.contains("tim youtube") -> youtubeSearch()
+                            ketqua.contains("bat nhac nhe")||ketqua.contains("nhac ru ngu")
+                                    ||ketqua.contains("thu gian")||ketqua.contains("nhac chill")->openChillMusic()
+                            ketqua.contains("nhac son tung") || ketqua.contains("nhac sep")->openSonTungMusic()
+                            ketqua.contains("chao") || ketqua.contains("hey")||ketqua.contains("hello")
                             -> speak("Chào bạn, bạn có cần tôi giúp gì?")
                             else -> speak("Xin lỗi, vui lòng thử lại")}
                     }
@@ -362,6 +362,8 @@ class HomeActivity : AppCompatActivity() {
         }
         checkIfSpeechRecognizerAvailable()
     }
+
+
     fun convert(str: String): String? {
         var str = str
         str = str.replace("à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ".toRegex(), "a")
@@ -426,52 +428,69 @@ class HomeActivity : AppCompatActivity() {
     }
 
     //Phone call number
-    private fun makeAPhoneCall() {
-        val keeperSplit = keeper.replace("".toRegex(), "").split("o").toTypedArray()
-        val number = keeperSplit[2]
-        //no space
-        if (number.trim { it <= ' ' }.length > 0) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.CALL_PHONE
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.CALL_PHONE),
-                    REQUESTCALL
-                )
+    private fun makeNumberCall() {
+        try {
+            val keeperSplit = convert(keeper)!!.replace(" ".toRegex(), "").split("o").toTypedArray()
+            val number = keeperSplit[3]
+            if (number.trim() { it <= ' ' }.length > 0) {
+                if (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.CALL_PHONE
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.CALL_PHONE),
+                        REQUESTCALL
+                    )
+                } else {
+                    val dial = "tel:$number"
+                    if (savedRecognitionEnglish==true){
+                        speak("Calling $number")
+                    }
+                    else{
+                        speak("Đang gọi cho số̀ $number")
+                    }
+
+                    startActivity(Intent(Intent.ACTION_CALL, Uri.parse(dial)))
+                }
             } else {
-                val dial = "tel:$number"
-                speak("Calling $number")
-                startActivity(Intent(Intent.ACTION_CALL, Uri.parse(dial)))
+                speak("Vui lòng đọc số điện thoại")
             }
-        } else {
-            Toast.makeText(this, "Enter Phone Number", Toast.LENGTH_LONG).show()
         }
+        catch (e:Exception){
+                speak("Xin thử lại, ví dụ: Gọi số 0987654321")
+        }
+
     }
 
     private fun sendSMS() {
-        Log.d("keeper", "Done0")
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.SEND_SMS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.SEND_SMS), SENDSMS)
-            Log.d("keeper", "Done1")
-        } else {
-            Log.d("keeper", "Done2")
-            val keeperReplaced = keeper.replace("".toRegex(), "")
-            val number = keeperReplaced.split("o").toTypedArray()[1].split("t").toTypedArray()[0]
-            val message = keeper.split("that").toTypedArray()[1]
-            Log.d("chk", number + message)
-            val mySmsManager = SmsManager.getDefault()
-            mySmsManager.sendTextMessage(
-                number.trim { it <= ' ' }, null, message.trim() { it <= ' ' }, null, null
-            )
-            speak("Message sent that $message")
+        try {
+            Log.d("keeper", "Done0")
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.SEND_SMS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.SEND_SMS), SENDSMS)
+                Log.d("keeper", "Done1")
+            } else {
+                Log.d("keeper", "Done2")
+                val keeperReplaced = keeper.replace(" ".toRegex(), "")
+                val number = keeperReplaced.split("i").toTypedArray()[2].split("l").toTypedArray()[0]
+                val message = keeper.split("là").toTypedArray()[1]
+                Log.d("smsSend", number + message)
+                val mySmsManager = SmsManager.getDefault()
+                mySmsManager.sendTextMessage(
+                    number.trim { it <= ' ' }, null, message.trim() { it <= ' ' }, null, null
+                )
+                speak("Tin nhắn đã gửi là $message")
+            }
         }
+        catch (e:Exception){
+            speak("Thử lại, ví dụ: Gửi sms tới 191 là Hẹn gặp lại")
+        }
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -483,7 +502,13 @@ class HomeActivity : AppCompatActivity() {
         } else {
             val cursor = contentResolver.query(Uri.parse("content://sms"), null, null, null)
             cursor!!.moveToFirst()
-            speak("Your last message was" + cursor.getString(12))
+            if (savedRecognitionEnglish==true){
+                speak("Your last message was" + cursor.getString(12))
+            }
+            else{
+                speak("Tin nhắn gần nhất của bạn là" + cursor.getString(12))
+            }
+
         }
     }
 
@@ -596,6 +621,77 @@ class HomeActivity : AppCompatActivity() {
         }
         val intent = packageManager.getLaunchIntentForPackage("com.google.android.youtube")
         intent?.let { startActivity(it) }
+    }
+    private fun youtubeSearch() {
+        if (savedRecognitionEnglish==false){
+            var getKey=keeper.trim().split("e").toTypedArray()
+            val keyWord=getKey[1]
+            val searchIntent = Intent(Intent.ACTION_SEARCH)
+            searchIntent.setPackage("com.google.android.youtube")
+            searchIntent.putExtra(SearchManager.QUERY, keyWord)
+            startActivity(searchIntent)
+            speak("Đây là kết quả tìm kiếm $keyWord trên Youtube")
+        } else{
+            var getKey=keeper.trim().split("e").toTypedArray()
+            val keyWord=getKey[2]
+            val searchIntent = Intent(Intent.ACTION_SEARCH)
+            searchIntent.setPackage("com.google.android.youtube")
+            searchIntent.putExtra(SearchManager.QUERY, keyWord)
+            startActivity(searchIntent)
+            speak("There are $keyWord on Youtube")
+        }
+
+    }
+    private fun openChillMusic(){
+//         id1="BUbSpHCVK0Q"
+//         id2="ROy57arUE1s"
+//         id3="EBSegrHpreY"
+//         id4="bP9gMpl1gyQ"
+//         id5 "FLHfYUdvfqk"
+        var id:String?=null
+        var rd=Random()
+        var x=rd.nextInt(5);
+        when{
+            x==0->id="BUbSpHCVK0Q"
+            x==1->id="ROy57arUE1s"
+            x==2->id="ROy57arUE1s"
+            x==3->id="ROy57arUE1s"
+            x==4->id="FLHfYUdvfqk"
+        }
+        val appIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:$id"))
+        val webIntent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("http://www.youtube.com/watch?v=$id")
+        )
+        speak("Được thôi, mời bạn nghe bài hát sau")
+        try {
+            startActivity(appIntent)
+        } catch (ex: ActivityNotFoundException) {
+            startActivity(webIntent)
+        }
+    }
+    private fun openSonTungMusic(){
+        var id:String?=null
+        var rd=Random()
+        var x=rd.nextInt(5);
+        when{
+            x==0->id="30KI5SuECuc"
+            x==1->id="psZ1g9fMfeo"
+            x==2->id="FN7ALfpGxiI"
+            x==3->id="6t-MjBazs3o"
+            x==4->id="knW7-x7Y7RE"
+        }
+        val appIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:$id"))
+        val webIntent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("http://www.youtube.com/watch?v=$id")
+        )
+        speak("Oh yeah, tôi cũng là một fan của Sếp đấy ")
+        try {
+            startActivity(appIntent)
+        } catch (ex: ActivityNotFoundException) {
+            startActivity(webIntent)
+        }
     }
 
     private fun openInstagram() {
@@ -882,23 +978,52 @@ class HomeActivity : AppCompatActivity() {
 
     }
 
-    private fun joke() {
+    private fun googleSearch() {
+        try {
+            if (savedRecognitionEnglish==true){
+                var getKey= keeper.trim().split("e").toTypedArray()
+                val keyWord=getKey[2]
+                val intent=Intent(Intent.ACTION_WEB_SEARCH)
+                intent.putExtra(SearchManager.QUERY,keyWord)
+                startActivity(intent)
+                speak("Search results for $keyWord")
+            }
+            else{
+                var getKey= keeper.trim().split("e").toTypedArray()
+                val keyWord=getKey[1]
+                val intent=Intent(Intent.ACTION_WEB_SEARCH)
+                intent.putExtra(SearchManager.QUERY,keyWord)
+                startActivity(intent)
+                speak("Sau đây là kết quả tìm kiếm cho $keyWord")
+            }
+        }
+        catch (e:Exception){
+            if (savedRecognitionEnglish==true){
+                speak("Try agian, ex: Search google Spider Man")
+            }else{
+                speak("Thử lại, ví dụ: Tìm google Học viện Kỹ thuật Mật Mã")
+            }
+        }
+
+
 
     }
 
-    private fun question() {
+    private fun questionMath() {
 
     }
+
+
     //set Alarm with Vietnamese
     //command dat bao thuc luc HH gio MM phut
     private fun setAlarm() {
         // handling Hour
-        val keeperSlpit = convert(keeper)!!.replace(" ".toRegex(),"").split("c").toTypedArray()
+        val keeperSplit = convert(keeper)!!.replace(" ".toRegex(),"").split("c").toTypedArray()
         val time:String
         if (convert(keeper)!!.contains("luc")){
-             time =keeperSlpit[2]
+             time =keeperSplit[2]
         } else{
-             time =keeperSlpit[1]
+             time =keeperSplit[1]
         }
         val getHour=time.split(":").toTypedArray()
         val hour=getHour[0]//get hour String
@@ -999,7 +1124,7 @@ class HomeActivity : AppCompatActivity() {
                     val jsonObjectWeather = jsonArrayWeather.getJSONObject(0)
                     val status = jsonObjectWeather.getString("main")
                     var STATUS:String =""
-                    if (savedRecognitionEnglish==false){
+                    if (savedRecognitionEnglish==true){
                         when{
                             status=="Clouds"->STATUS="Sky is cloudy"
                             status=="Clear"->STATUS="Sky is clear"
@@ -1016,9 +1141,9 @@ class HomeActivity : AppCompatActivity() {
                     val Temp = a.toInt().toString()
                     //speak
                     speak("""
-                        Current weather in $name 
-                        $Day
-                        $STATUS
+                        Current weather in $name ,
+                        $Day,
+                        $STATUS,
                         The temperature is $Temp degrees Celsius
                         humidity is $humidity percent
                         
@@ -1041,7 +1166,7 @@ class HomeActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUESTCALL) {
             if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                makeAPhoneCall()
+                makeNumberCall()
             } else {
                 Toast.makeText(this, "Permission Denied", Toast.LENGTH_LONG).show()
             }

@@ -1,5 +1,6 @@
 package com.example.assistantkotlin.assistant
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +20,6 @@ class SettingActivity : AppCompatActivity() {
     //firebase auth
     private lateinit var firebaseAuth: FirebaseAuth
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setting)
@@ -27,7 +27,15 @@ class SettingActivity : AppCompatActivity() {
         //back btn setOnclick
         backToolbarBtn.setOnClickListener {
             startActivity(Intent(this, HomeActivity::class.java))
-//            overridePendingTransition(R.anim.slide_right,R.anim.slide_left)
+        }
+        //get save setting
+        //get key value from share preferences recognition
+        val sharedPreferences = getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+        val savedRecognition=sharedPreferences?.getString("recognition",null)
+        if (savedRecognition=="English"){
+            currentRecognitionTv.text="English"
+        } else if (savedRecognition=="Vietnamese"){
+            currentRecognitionTv.text="Tiếng Việt"
         }
 
         //init firebase auth
