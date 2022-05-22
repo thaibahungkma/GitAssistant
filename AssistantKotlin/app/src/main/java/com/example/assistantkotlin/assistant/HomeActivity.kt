@@ -38,6 +38,7 @@ import com.example.assistantkotlin.MainActivity
 import com.example.assistantkotlin.R
 import com.example.assistantkotlin.data.AssistantDatabase
 import com.example.assistantkotlin.databinding.ActivityHomeBinding
+import com.example.assistantkotlin.extend.NoteActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
@@ -121,7 +122,10 @@ class HomeActivity : AppCompatActivity() {
         //Mov to Setting Activity
         avatarIv.setOnClickListener {
             startActivity(Intent(this, SettingActivity::class.java))
-
+        }
+        //Tools on Click
+        openNoteIv.setOnClickListener {
+            startActivity(Intent(this, NoteActivity::class.java))
         }
 
         //init firebase auth
@@ -151,11 +155,13 @@ class HomeActivity : AppCompatActivity() {
         //get key value from share preferences recognition
         val sharedPreferences = getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
         val savedRecognition=sharedPreferences?.getString("recognition",null)
-        if (savedRecognition=="English"){
-            savedRecognitionEnglish=true
-        } else if (savedRecognition=="Vietnamese"){
+        if (savedRecognition=="English") {
+            savedRecognitionEnglish=true }
+        else if (savedRecognition=="Vietnamese"){
             savedRecognitionEnglish=false
         }
+
+
 
 
 
@@ -189,12 +195,6 @@ class HomeActivity : AppCompatActivity() {
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
         )
-//        if (savedRecognition=="English"){
-//            recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
-//        }
-//        else if (savedRecognition=="Vietnamese"){
-//            recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VI")
-//        }
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
         speechRecognizer.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(p0: Bundle?) {
@@ -394,8 +394,14 @@ class HomeActivity : AppCompatActivity() {
 
     //speak text
     fun speak(text: String) {
-        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
-        assistantViewModel.sendMessageToDatabase(text,keeper)
+        try {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
+            assistantViewModel.sendMessageToDatabase(text,keeper)
+        }
+        catch (speak:Exception){
+            Log.d("Error","skip")
+        }
+
     }
 
     //get Date to speech
@@ -458,7 +464,7 @@ class HomeActivity : AppCompatActivity() {
                 speak("Vui lòng đọc số điện thoại")
             }
         }
-        catch (e:Exception){
+        catch (call:Exception){
                 speak("Xin thử lại, ví dụ: Gọi số 0987654321")
         }
 
@@ -487,7 +493,7 @@ class HomeActivity : AppCompatActivity() {
                 speak("Tin nhắn đã gửi là $message")
             }
         }
-        catch (e:Exception){
+        catch (sendSMS:Exception){
             speak("Thử lại, ví dụ: Gửi sms tới 191 là Hẹn gặp lại")
         }
 
@@ -800,8 +806,8 @@ class HomeActivity : AppCompatActivity() {
                     Toast.makeText(this, "Enter Phone Number", Toast.LENGTH_LONG).show()
                 }
 
-            } catch (e: Exception) {
-                e.printStackTrace()
+            } catch (contact: Exception) {
+                contact.printStackTrace()
                 speak("Something when wrong")
             }
         }
@@ -880,8 +886,8 @@ class HomeActivity : AppCompatActivity() {
                 }
 
             }
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
+        } catch (flash: java.lang.Exception) {
+            flash.printStackTrace()
             speak("Error Occurred")
         }
     }
@@ -897,8 +903,8 @@ class HomeActivity : AppCompatActivity() {
                     speak("Đã tắt đèn pin")
                 }
             }
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
+        } catch (offFlash: java.lang.Exception) {
+            offFlash.printStackTrace()
             speak("Error Occurred")
         }
     }
@@ -997,7 +1003,7 @@ class HomeActivity : AppCompatActivity() {
                 speak("Sau đây là kết quả tìm kiếm cho $keyWord")
             }
         }
-        catch (e:Exception){
+        catch (google:Exception){
             if (savedRecognitionEnglish==true){
                 speak("Try agian, ex: Search google Spider Man")
             }else{
@@ -1287,6 +1293,20 @@ class HomeActivity : AppCompatActivity() {
                 val personPhoto: Uri? = acct.photoUrl
                 Picasso.get().load(personPhoto).placeholder(R.drawable.ic_baseline_face_24)
                     .into(avatarIv)
+                helloNameTv.text=personGivenName
+
+                //get hour to hello
+                val rightNow = Calendar.getInstance()
+                val currentHourIn24Format: Int =rightNow.get(Calendar.HOUR_OF_DAY)
+                when (currentHourIn24Format){
+                    in 0..3->helloTv.text="Sáng mai gặp lại bạn nhé,"
+                    in 4..10->helloTv.text="Chúc bạn ngày mới tốt lành,"
+                    in 11..13->helloTv.text="Bữa trưa vui vẻ nhé,"
+                    in 14..17->helloTv.text="Buổi chiều năng động nào,"
+                    in 18..19->helloTv.text="Đến giờ ăn tối rồi,"
+                    in 20..21->helloTv.text="Buổi tối thật chill nhé,"
+                    in 22..23->helloTv.text="Chúc ngủ ngon,"
+                }
             }
         }
     }
@@ -1294,6 +1314,8 @@ class HomeActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         finish()
+        assistantViewModel.onClear()
     }
+
 
 }

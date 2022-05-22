@@ -16,39 +16,62 @@
     android:padding="10dp"
     tools:context=".assistant.HomeActivity">
 
-    <LinearLayout
-        android:layout_marginTop="@dimen/_10sdp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_marginTop="@dimen/_8sdp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginLeft="5dp"
         android:weightSum="10">
 
-        <SearchView
-            android:id="@+id/searchV"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/helloTv"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="9"
-            android:iconifiedByDefault="false"
-            android:queryBackground="@android:color/transparent"
-            android:background="@drawable/bg_searchview"
-            android:queryHint="Search..." />
+            android:text="Chúc bạn ngày mới tốt lành,"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="@color/text"
+            android:textSize="24sp"
+            android:layout_marginRight="60dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/avatarIv"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/helloNameTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="9"
+            android:text="Hùng"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="@color/text"
+            android:textSize="24sp"
+            android:layout_marginRight="60dp"
+            app:layout_constraintLeft_toLeftOf="@id/avatarIv"
+            app:layout_constraintTop_toBottomOf="@+id/helloTv" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/avatarIv"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:src="@drawable/ic_baseline_face_24" />
+            android:src="@drawable/ic_baseline_face_24"
+            android:layout_marginRight="5dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
-        android:paddingHorizontal="5dp"
-        android:layout_marginTop="20dp"
-        android:text="COMMANDS"
-        android:textColor="@color/text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/roboto"
+        android:textStyle="bold"
+        android:paddingHorizontal="5dp"
+        android:text="TIỆN ÍCH"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/text" />
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -59,54 +82,45 @@
             android:id="@+id/linear1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:weightSum="3">
+            android:weightSum="4">
+
+
+
+            <ImageView
+                android:id="@+id/openNoteIv"
+                android:layout_width="wrap_content"
+                android:layout_height="55dp"
+                android:layout_weight="1"
+                android:tint="#66BB6A"
+                tools:ignore="UseAppTint"
+                android:rotation="-90"
+                android:src="@drawable/ic_baseline_note_24" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="55dp"
                 android:layout_weight="1"
-                android:src="@drawable/icongoogle" />
-
+                android:tint="#AB47BC"
+                tools:ignore="UseAppTint"
+                android:src="@drawable/ic_note_24" />
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="55dp"
                 android:layout_weight="1"
-                android:src="@drawable/iconsyoutube" />
-
+                android:tint="#673AB7"
+                tools:ignore="UseAppTint"
+                android:src="@drawable/ic_baseline_library_music_24"
+                 />
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="55dp"
                 android:layout_weight="1"
-                android:src="@drawable/icons8note" />
+                android:tint="#FFCA28"
+                tools:ignore="UseAppTint"
+                android:src="@drawable/ic_baseline_lightbulb_24" />
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/linear1"
-            android:layout_marginTop="10dp"
-            android:weightSum="3">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="55dp"
-                android:layout_weight="1"
-                android:src="@drawable/iconphone" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="55dp"
-                android:layout_weight="1"
-                android:src="@drawable/iconalarmclock" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="55dp"
-                android:layout_weight="1"
-                android:src="@drawable/iconopen" />
-
-        </LinearLayout>
 
     </RelativeLayout>
     <LinearLayout
@@ -116,7 +130,9 @@
         <TextView
             android:paddingHorizontal="5dp"
             android:layout_marginTop="20dp"
-            android:text="CHATS"
+            android:text="TRÒ CHUYỆN"
+            android:textStyle="bold"
+            android:fontFamily="@font/roboto"
             android:textColor="@color/text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -128,7 +144,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_360sdp"
+            android:layout_height="@dimen/_400sdp"
             android:background="@drawable/bg_recyclerview"
             android:padding="10dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />

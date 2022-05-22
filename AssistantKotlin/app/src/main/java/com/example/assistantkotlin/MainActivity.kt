@@ -1,10 +1,10 @@
 package com.example.assistantkotlin
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.assistantkotlin.assistant.HomeActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -13,11 +13,19 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var firebaseAuth: FirebaseAuth
+    private var database: DatabaseReference
+    init {
+        database = Firebase.database.reference
+    }
+
 
     //const
     private companion object {
@@ -44,6 +52,9 @@ class MainActivity : AppCompatActivity() {
         //Google SignIn Button, Click to begin Google SignIn
         btnGoogleSignIn.setOnClickListener {
             //begin Google SignIn
+
+
+
             Log.d(TAG, "onCreate: begin Google SignIn")
             val intent = googleSignInClient.signInIntent
             startActivityForResult(intent, RC_SIGN_IN)
@@ -98,6 +109,16 @@ class MainActivity : AppCompatActivity() {
                     //user is new -Account created
                     Log.d(TAG, "firebaseAuthWithGoogleAccount: Account created...\n$email")
                     Toast.makeText(this, "Account created...\n$email", Toast.LENGTH_SHORT).show()
+                //create database for new user
+                    //timestamp
+
+                    //timestamp
+                    val timestamp = "" + System.currentTimeMillis()
+                    val datafirebase= Firebase.database
+                    val noteDb=datafirebase.getReference("Note")
+                    val anniversaryDb=datafirebase.getReference("Anniversary")
+                    noteDb.child("$uid")
+                    anniversaryDb.child("$uid")
                 } else {
                     //existing user - LoggedIn
                     Log.d(TAG, "firebaseAuthWithGoogleAccount: Existing user...\n$email")

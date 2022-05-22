@@ -49,7 +49,7 @@
         android:layout_height="wrap_content">
         <TextView
             android:layout_marginTop="10dp"
-            android:text="Popular Settings"
+            android:text="@string/popular_settings"
             android:textColor="@color/text"
             android:textSize="25sp"
             android:layout_width="wrap_content"
@@ -72,7 +72,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <TextView
-                    android:text="Language"
+                    android:text="@string/language_setting"
                     android:textSize="20sp"
                     android:textColor="@color/text"
                     android:layout_width="wrap_content"
@@ -81,7 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="15sp"
-                    android:text="Language Display"
+                    android:text="@string/language_display"
                     android:textColor="@color/text2"/>
             </LinearLayout>
 
@@ -104,7 +104,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <TextView
-                    android:text="Recognition Language"
+                    android:text="@string/recognition_language_setting"
                     android:textSize="20sp"
                     android:textColor="@color/text"
                     android:layout_width="wrap_content"
@@ -114,7 +114,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="15sp"
-                    android:text="Use to talk with assistant"
+                    android:text="Dùng để nói chuyện với trợ lý"
                     android:textColor="@color/text2"/>
             </LinearLayout>
 
@@ -137,7 +137,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <TextView
-                    android:text="Theme"
+                    android:text="@string/theme_setting"
                     android:textSize="20sp"
                     android:textColor="@color/text"
                     android:layout_width="wrap_content"
@@ -146,7 +146,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="15sp"
-                    android:text="Light"
+                    android:text="@string/light_theme"
                     android:textColor="@color/text2"/>
             </LinearLayout>
 
@@ -178,19 +178,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="15sp"
-                    android:text="Quick access to this app"
+                    android:text="Truy cập trợ lý nhanh"
                     android:textColor="@color/text2"/>
             </LinearLayout>
 
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/LnNote"
+            android:id="@+id/LnContact"
             android:layout_marginTop="12dp"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <ImageView
-                android:src="@drawable/ic_note_24"
+                android:src="@drawable/ic_contact_phone"
                 android:padding="12dp"
                 app:tint="@color/text"
                 android:layout_width="60dp"
@@ -201,7 +201,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <TextView
-                    android:text="Note"
+                    android:text="Danh bạ"
                     android:textSize="20sp"
                     android:textColor="@color/text"
                     android:layout_width="wrap_content"
@@ -210,7 +210,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="15sp"
-                    android:text="See the list note of you"
+                    android:text="Danh sách liên hệ"
                     android:textColor="@color/text2"/>
             </LinearLayout>
 
@@ -233,7 +233,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <TextView
-                    android:text="Logout"
+                    android:text="Đăng xuất"
                     android:textSize="20sp"
                     android:textColor="@color/text"
                     android:layout_width="wrap_content"
@@ -242,7 +242,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="15sp"
-                    android:text="End of login session"
+                    android:text="Kết thúc phiên đăng nhập"
                     android:textColor="@color/text2"/>
             </LinearLayout>
 

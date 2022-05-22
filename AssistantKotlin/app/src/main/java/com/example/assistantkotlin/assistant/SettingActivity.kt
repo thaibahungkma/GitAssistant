@@ -3,8 +3,9 @@ package com.example.assistantkotlin.assistant
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.format.DateFormat
+import androidx.appcompat.app.AppCompatActivity
 import com.example.assistantkotlin.MainActivity
 import com.example.assistantkotlin.R
 import com.example.assistantkotlin.fragment.RecognitionSettingFragment
@@ -14,6 +15,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.activity_setting.*
 import kotlinx.android.synthetic.main.tool_bar.*
+import java.util.*
 
 class SettingActivity : AppCompatActivity() {
 
@@ -81,6 +83,9 @@ class SettingActivity : AppCompatActivity() {
             }
         }
     }
+
+
+
 
     override fun onBackPressed() {
         super.onBackPressed()

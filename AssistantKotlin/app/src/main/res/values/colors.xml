@@ -13,11 +13,11 @@
     <color name="tim">#715574</color>
     <color name="text">#494c54</color>
     <color name="text2">#686A70</color>
-    <color name="bg">#e6eaeb</color>
+    <color name="bg">#F1F4F4</color>
     <color name="bgDialogColor">#FD464647</color>
     <color name="nensearch">#E6676768</color>
     <color name="bgChatLeft">#446078</color>
-    <color name="bgChatRight">#f5f5f5</color>
+    <color name="bgChatRight">#FFFFFF</color>
 
 
 
