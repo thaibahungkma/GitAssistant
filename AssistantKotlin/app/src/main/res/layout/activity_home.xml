@@ -97,6 +97,7 @@
                 android:src="@drawable/ic_baseline_note_24" />
 
             <ImageView
+                android:id="@+id/OpenAnniversaryIV"
                 android:layout_width="wrap_content"
                 android:layout_height="55dp"
                 android:layout_weight="1"
@@ -104,6 +105,7 @@
                 tools:ignore="UseAppTint"
                 android:src="@drawable/ic_note_24" />
             <ImageView
+                android:id="@+id/openPlayListIv"
                 android:layout_width="wrap_content"
                 android:layout_height="55dp"
                 android:layout_weight="1"
@@ -112,6 +114,7 @@
                 android:src="@drawable/ic_baseline_library_music_24"
                  />
             <ImageView
+                android:id="@+id/openSuggestIv"
                 android:layout_width="wrap_content"
                 android:layout_height="55dp"
                 android:layout_weight="1"

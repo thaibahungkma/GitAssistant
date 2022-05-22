@@ -41,6 +41,9 @@ import com.example.assistantkotlin.databinding.ActivityHomeBinding
 import com.example.assistantkotlin.extend.NoteActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_home.*
 import org.json.JSONException
@@ -86,9 +89,12 @@ class HomeActivity : AppCompatActivity() {
     private var imageIndex: Int = 0
     private lateinit var imgUri: Uri
     private var savedRecognitionEnglish:Boolean = true
+    private var isNote:Boolean=false
 
     //firebase auth
     private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var dbRef: DatabaseReference
+    private var user: FirebaseUser? = null
 
     @Suppress("DEPRECATION")
     private val imageDirection =
@@ -118,6 +124,7 @@ class HomeActivity : AppCompatActivity() {
         //animations
         val scaleUp = AnimationUtils.loadAnimation(this, R.anim.scale_up)
         val scaleDown = AnimationUtils.loadAnimation(this, R.anim.scale_down)
+        val zoomIn = AnimationUtils.loadAnimation(this, R.anim.zoom_in)
 
         //Mov to Setting Activity
         avatarIv.setOnClickListener {
@@ -126,11 +133,24 @@ class HomeActivity : AppCompatActivity() {
         //Tools on Click
         openNoteIv.setOnClickListener {
             startActivity(Intent(this, NoteActivity::class.java))
+            openNoteIv.startAnimation(zoomIn)
+        }
+        OpenAnniversaryIV.setOnClickListener {
+            OpenAnniversaryIV.startAnimation(zoomIn)
+        }
+        openPlayListIv.setOnClickListener {
+            openPlayListIv.startAnimation(zoomIn)
+        }
+        openSuggestIv.setOnClickListener {
+            openSuggestIv.startAnimation(zoomIn)
         }
 
         //init firebase auth
         firebaseAuth = FirebaseAuth.getInstance()
+        user = firebaseAuth.currentUser
         checkUser()
+
+
         cameraManager = getSystemService(CAMERA_SERVICE) as CameraManager
         try {
             cameraID = cameraManager.cameraIdList[0]
@@ -273,7 +293,10 @@ class HomeActivity : AppCompatActivity() {
                             keeper.lowercase().contains("weather") -> GetCurrentWeatherDataEnglish()
                             keeper.lowercase().contains("hello") || keeper.contains("hi") || keeper.contains("hey")
                             -> speak("Hello, how I can help you?")
-                            else -> speak("Sorry, please try again")}
+                            else -> if (isNote==false){
+                                speak("Sorry, please try again")
+                            }
+                                }
                     }
                     else if (savedRecognition=="Vietnamese"){
                         var ketqua=convert(keeper)!!.lowercase()
@@ -323,12 +346,16 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("thoi tiet")-> GetCurrentWeatherData()
                             ketqua.contains("tim google") -> googleSearch()
                             ketqua.contains("tim youtube") -> youtubeSearch()
+                            ketqua.contains("tao ghi chu")->createNote()
                             ketqua.contains("bat nhac nhe")||ketqua.contains("nhac ru ngu")
                                     ||ketqua.contains("thu gian")||ketqua.contains("nhac chill")->openChillMusic()
                             ketqua.contains("nhac son tung") || ketqua.contains("nhac sep")->openSonTungMusic()
                             ketqua.contains("chao") || ketqua.contains("hey")||ketqua.contains("hello")
                             -> speak("Chào bạn, bạn có cần tôi giúp gì?")
-                            else -> speak("Xin lỗi, vui lòng thử lại")}
+                            else ->
+                                if (isNote==false){
+                                    speak("Xin lỗi, vui lòng thử lại")
+                                }}
                     }
 
 
@@ -1015,8 +1042,44 @@ class HomeActivity : AppCompatActivity() {
 
     }
 
-    private fun questionMath() {
+    private fun createNote() {
+        isNote=true
+        speak("Được chứ, vậy nội dung là gì")
+        Handler().postDelayed({
+            keeper=""
+            Log.d("keeperRong",keeper)
+            speechRecognizer.startListening(recognizerIntent)
+            Handler().postDelayed({
+                upDbNote()
+            }, 6000)
+        }, 2500)
 
+
+
+    }
+    private fun upDbNote(){
+        //up data to rtdb
+        val uid=user?.uid
+        val timestamp = "" + System.currentTimeMillis()
+        dbRef =FirebaseDatabase.getInstance().getReference("Note")
+        if (keeper!=""){
+            // sử dụng HashMap
+            val noteTitle=""
+            val noteDescription=keeper.trim()
+            val noteTime=timestamp
+            val hashMap = HashMap<Any, String>()
+            hashMap.put("noteTitle",noteTitle)
+            hashMap.put("noteDescription",noteDescription)
+            hashMap.put("noteTime",noteTime)
+            dbRef.child("$uid").child("$timestamp").setValue(hashMap).addOnSuccessListener {
+                speak("Đã thêm ghi chú thành công")
+            }.addOnFailureListener {
+                Toast.makeText(this, "Thêm ghi chú thất bại", Toast.LENGTH_SHORT).show()
+            }
+        }
+        else{
+            Toast.makeText(this, "Không nhận được nội dung ghi chú", Toast.LENGTH_SHORT).show()
+        }
     }
 
 
