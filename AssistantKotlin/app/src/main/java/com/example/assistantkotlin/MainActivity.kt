@@ -21,10 +21,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var firebaseAuth: FirebaseAuth
-    private var database: DatabaseReference
-    init {
-        database = Firebase.database.reference
-    }
 
 
     //const
@@ -109,16 +105,6 @@ class MainActivity : AppCompatActivity() {
                     //user is new -Account created
                     Log.d(TAG, "firebaseAuthWithGoogleAccount: Account created...\n$email")
                     Toast.makeText(this, "Account created...\n$email", Toast.LENGTH_SHORT).show()
-                //create database for new user
-                    //timestamp
-
-                    //timestamp
-                    val timestamp = "" + System.currentTimeMillis()
-                    val datafirebase= Firebase.database
-                    val noteDb=datafirebase.getReference("Note")
-                    val anniversaryDb=datafirebase.getReference("Anniversary")
-                    noteDb.child("$uid")
-                    anniversaryDb.child("$uid")
                 } else {
                     //existing user - LoggedIn
                     Log.d(TAG, "firebaseAuthWithGoogleAccount: Existing user...\n$email")
