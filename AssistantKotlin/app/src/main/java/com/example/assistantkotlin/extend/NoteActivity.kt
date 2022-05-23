@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.format.DateFormat
+import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.assistantkotlin.MainActivity
@@ -39,7 +40,7 @@ class NoteActivity : AppCompatActivity() {
         checkUser()
         //recyclerView
         noteRecyclerView=findViewById(R.id.noteList)
-        noteRecyclerView.layoutManager=LinearLayoutManager(this)
+        noteRecyclerView.layoutManager=LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
         noteRecyclerView.setHasFixedSize(true)
         noteArrayList= arrayListOf<ModelNote>()
 
@@ -61,7 +62,7 @@ class NoteActivity : AppCompatActivity() {
                         val note =noteSnapshot.getValue(ModelNote::class.java)
                         noteArrayList.add(note!!)
                     }
-                    noteRecyclerView.adapter=NoteAdapter(noteArrayList)
+                    noteRecyclerView.adapter=NoteAdapter(noteArrayList.reversed() as java.util.ArrayList<ModelNote>)
                 }
             }
 
@@ -78,5 +79,10 @@ class NoteActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        startActivity(Intent(this, HomeActivity::class.java))
     }
 }

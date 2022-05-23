@@ -52,7 +52,7 @@
             android:id="@+id/noteTimeTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="220dp"
+            android:layout_marginStart="200dp"
             android:text="15:12 10/10/2017"
             android:textSize="12sp"
             android:textColor="@color/text"/>

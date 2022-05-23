@@ -22,6 +22,7 @@
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/drawable/bg_dialog.xml" value="0.1335" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/drawable/bg_searchview.xml" value="0.1335" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/drawable/bg_sender.xml" value="0.1195" />
+        <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/activity_edit_note.xml" value="0.18" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/activity_home.xml" value="0.16" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/activity_note.xml" value="0.18" />
@@ -30,6 +31,7 @@
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/fragment_recognition_setting_dialog.xml" value="0.18" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/item_note.xml" value="0.22" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/tool_bar.xml" value="0.15726495726495726" />
+        <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/tool_bar_editnote.xml" value="0.18" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/tool_bar_note.xml" value="0.15726495726495726" />
       </map>
     </option>

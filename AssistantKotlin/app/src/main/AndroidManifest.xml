@@ -59,6 +59,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AssistantKotlin">
         <activity
+            android:name=".extend.EditNoteActivity"
+            android:exported="false" />
+        <activity
             android:name=".extend.NoteActivity"
             android:exported="false" />
         <activity
