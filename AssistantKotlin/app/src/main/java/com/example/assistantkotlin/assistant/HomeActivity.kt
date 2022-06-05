@@ -350,12 +350,19 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("tim google") -> googleSearch()
                             ketqua.contains("tim youtube") -> youtubeSearch()
                             ketqua.contains("tao ghi chu")->createNote()
+<<<<<<< HEAD
                             ketqua.contains("mo ghi chu")||ketqua.contains("mo danh sach ghi chu")->openNote()
+=======
+>>>>>>> f7782d4ec82442c8ef9a87d7059229983822508b
                             ketqua.contains("bat nhac nhe")||ketqua.contains("nhac ru ngu")
                                     ||ketqua.contains("thu gian")||ketqua.contains("nhac chill")->openChillMusic()
                             ketqua.contains("nhac son tung") || ketqua.contains("nhac sep")->openSonTungMusic()
                             ketqua.contains("chao") || ketqua.contains("hey")||ketqua.contains("hello")
+<<<<<<< HEAD
                             -> speakNow("hello")
+=======
+                            -> speak("Chào bạn, bạn có cần tôi giúp gì?")
+>>>>>>> f7782d4ec82442c8ef9a87d7059229983822508b
                             else ->
                                 if (isNote==false){
                                     speak("Xin lỗi, vui lòng thử lại")
