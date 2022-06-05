@@ -64,6 +64,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var recognizerIntent: Intent
     private lateinit var keeper: String
 
+    private lateinit var personName:String
+
     private var REQUESTCALL = 1
     private var SENDSMS = 2
     private var READSMS = 3
@@ -199,6 +201,7 @@ class HomeActivity : AppCompatActivity() {
                 }
                 else if (savedRecognition=="Vietnamese"){
                     result= textToSpeech.setLanguage(Locale.forLanguageTag("vi-VI"))
+                    textToSpeech.setPitch(0.9f)
                     if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                         Log.e(logtts, "Language not supported")
                     } else {
@@ -260,7 +263,7 @@ class HomeActivity : AppCompatActivity() {
                             keeper.lowercase().contains("clear") -> assistantViewModel.onClear()
                             keeper.lowercase().contains("date") -> getDate()
                             keeper.lowercase().contains("what time") -> getTime()
-                            keeper.lowercase().contains("phone call") -> makeNumberCall()
+                            keeper.lowercase().contains("phone to") -> makeNumberCall()
                             keeper.lowercase().contains("send sms") -> sendSMS()
                             keeper.lowercase().contains("read sms")||keeper.lowercase().contains("read message") -> readSMS()
                             keeper.lowercase().contains("open gmail") -> openGmail()
@@ -301,21 +304,21 @@ class HomeActivity : AppCompatActivity() {
                     else if (savedRecognition=="Vietnamese"){
                         var ketqua=convert(keeper)!!.lowercase()
                         when {
-                            ketqua.contains("gioi thieu") -> speak("Chào bạn, tôi là trợ lý Sun. Tôi có thể giúp bạn thực hiện một số công việc, bạn hãy ra lệnh cho tôi bằng giọng nói")
-                            ketqua.contains("cam on") -> speak("Không có chi, hí hí")
+                            ketqua.contains("gioi thieu") -> speakNow("gioi thieu")
+                            ketqua.contains("cam on") -> speakNow("cam on")
                             ketqua.contains("hat bai")||ketqua.contains("hat mot bai")||ketqua.contains("sing a song")
-                            -> speak("Cơ hội cho tôi thể hiện đây rồi, bạn hãy lắng nghe nhé. Một con vịt xòe ra hai cái cánh, nó kêu rằng quác quác quác, quạc quạc quạc ")
-                            ketqua.contains("choi game") -> speak("Lo làm lo học đi bạn, chơi ít thôi")
-                            ketqua.contains("giup toi") -> speak("tất nhiên rồi, tôi có thể giúp gì cho bạn ?")
-                            ketqua.contains("anh yeu em") ||ketqua.contains("toi yeu ban") || ketqua.contains("em yeu anh")-> speak("tôi cũng yêu bạn")
+                            -> speakNow("hat")
+                            ketqua.contains("choi game") -> speakNow("choi game")
+                            ketqua.contains("ban co doi bung") -> speakNow("doi bung")
+                            ketqua.contains("anh yeu em") ||ketqua.contains("toi yeu ban") || ketqua.contains("em yeu anh")-> speakNow("yeu")
                             ketqua.contains("ten ban") -> speak("Tên tôi là trợ lý Sun")
-                            ketqua.contains("tao ra ban") ||ketqua.contains("tao ban")||ketqua.contains("lap trinh ban")-> speak("Anh Hùng đẹp trai lập trình nên tôi lúc làm đồ án")
+                            ketqua.contains("tao ra ban") ||ketqua.contains("tao ban")||ketqua.contains("lap trinh ban")-> speak("Anh Hùng đẹp trai lập trình nên tôi lúc làm đồ án đấy")
                             ketqua.contains("xoa chat") -> assistantViewModel.onClear()
                             ketqua.contains("hom nay ngay bao nhieu") ||ketqua.contains("hom nay la ngay bao nhieu")||ketqua.contains("hom nay ngay may")||ketqua.contains("ngay thang")-> getDate()
                             ketqua.contains("may gio")||ketqua.contains("xem gio") -> getTime()
                             ketqua.contains("goi so")||ketqua.contains("goi dien so") -> makeNumberCall()
                             ketqua.contains("gui sms") -> sendSMS()
-                            ketqua.contains("doc tin nhan")||ketqua.contains("doc sms") -> readSMS()
+                            ketqua.contains("doc tin nhan vua nhan")||ketqua.contains("tin nhan gan nhat")||ketqua.contains("doc tin nhan nhan")||ketqua.contains("doc hop thu den gan nhat") -> readSMS()
                             ketqua.contains("mo gmail") -> openGmail()
                             ketqua.contains("mo facebook") -> openFaceBook()
                             ketqua.contains("mo message") -> openMessages()
@@ -347,11 +350,12 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("tim google") -> googleSearch()
                             ketqua.contains("tim youtube") -> youtubeSearch()
                             ketqua.contains("tao ghi chu")->createNote()
+                            ketqua.contains("mo ghi chu")||ketqua.contains("mo danh sach ghi chu")->openNote()
                             ketqua.contains("bat nhac nhe")||ketqua.contains("nhac ru ngu")
                                     ||ketqua.contains("thu gian")||ketqua.contains("nhac chill")->openChillMusic()
                             ketqua.contains("nhac son tung") || ketqua.contains("nhac sep")->openSonTungMusic()
                             ketqua.contains("chao") || ketqua.contains("hey")||ketqua.contains("hello")
-                            -> speak("Chào bạn, bạn có cần tôi giúp gì?")
+                            -> speakNow("hello")
                             else ->
                                 if (isNote==false){
                                     speak("Xin lỗi, vui lòng thử lại")
@@ -389,6 +393,7 @@ class HomeActivity : AppCompatActivity() {
         }
         checkIfSpeechRecognizerAvailable()
     }
+
 
 
     fun convert(str: String): String? {
@@ -430,6 +435,33 @@ class HomeActivity : AppCompatActivity() {
         }
 
     }
+    fun speakNow(text: String) {
+        try {
+            var textVoice:String
+            when (text){
+                "hello"-> textVoice="Chào $personName, bạn có cần mình giúp gì không ? "
+                "gioi thieu"->textVoice="Chào $personName, mình là trợ lý Sun. Mình có thể giúp bạn thực hiện một số công việc, $personName hãy ra lệnh cho mình bằng giọng nói nhé"
+                "cam on"->textVoice="Không có gì, nhiệm vụ của mình là giúp đỡ $personName mà \uD83D\uDE0A"
+                "choi game"->textVoice="Mình cũng thích chơi game lắm. Chờ mình thông minh hơn rồi mình sẽ chơi với bạn nhé"
+                "doi bung"->textVoice="Mình không ăn cơm nên không đói, nhưng bạn nhớ sạc pin điện thoại để mình luôn khỏe mạnh nhé"
+                "yeu"->textVoice="$personName đang tỏ tình với mình đấy à, mình đồng ý \uD83E\uDD70"
+                "hat"->textVoice="""Cơ hội cho mình thể hiện đây rồi, mời $personName lắng nghe nhé
+                    | Cầm tay anh, dựa vai anh
+                    | Kề bên anh nơi này có anh
+                    | Khép đôi mi thật lâu
+                    | Nguyện mãi bên cạnh nhau
+                    | Yêu say đắm như ngày đầu
+                """.trimMargin()
+                else -> textVoice="Xin lỗi, hiện tại mình chưa được học câu lệnh này"
+            }
+            textToSpeech.speak(textVoice, TextToSpeech.QUEUE_FLUSH, null, "")
+            assistantViewModel.sendMessageToDatabase(textVoice,keeper)
+        }
+        catch (speak:Exception){
+            Log.d("Error","skip")
+        }
+
+    }
 
     //get Date to speech
     fun getDate() {
@@ -464,7 +496,7 @@ class HomeActivity : AppCompatActivity() {
     private fun makeNumberCall() {
         try {
             val keeperSplit = convert(keeper)!!.replace(" ".toRegex(), "").split("o").toTypedArray()
-            val number = keeperSplit[3]
+            val number = keeperSplit[2]
             if (number.trim() { it <= ' ' }.length > 0) {
                 if (ContextCompat.checkSelfPermission(
                         this,
@@ -495,6 +527,9 @@ class HomeActivity : AppCompatActivity() {
                 speak("Xin thử lại, ví dụ: Gọi số 0987654321")
         }
 
+    }
+    private fun openNote() {
+        startActivity(Intent(this, NoteActivity::class.java))
     }
 
     private fun sendSMS() {
@@ -533,13 +568,15 @@ class HomeActivity : AppCompatActivity() {
         ) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_SMS), READSMS)
         } else {
-            val cursor = contentResolver.query(Uri.parse("content://sms"), null, null, null)
+            val cursor = contentResolver.query(Uri.parse("content://sms/inbox"), null, null, null)
             cursor!!.moveToFirst()
+            val name = cursor!!.getColumnIndex("address")
+            val body= cursor!!.getColumnIndex("body")
             if (savedRecognitionEnglish==true){
-                speak("Your last message was" + cursor.getString(12))
+                speak("Message from ${cursor.getString(name)} is ${cursor.getString(body)}")
             }
             else{
-                speak("Tin nhắn gần nhất của bạn là" + cursor.getString(12))
+                speak("Tin nhắn nhận từ ${cursor.getString(name)} nội dung là ${cursor.getString(body)} ")
             }
 
         }
@@ -1154,12 +1191,11 @@ class HomeActivity : AppCompatActivity() {
                     val Temp = a.toInt().toString()
                     //speak
                     speak("""
-                        Thời tiết khu vực $citySpeakFull 
+                        Dự báo thời tiết khu vực $citySpeakFull 
                         $Day
                         $STATUS
-                        Nhiệt độ là $Temp độ C
+                        Nhiệt độ khoảng $Temp độ C
                         Độ ẩm $humidity %
-                        
                     """.trimIndent())
                 } catch (e: JSONException) {
                     e.printStackTrace()
@@ -1253,7 +1289,8 @@ class HomeActivity : AppCompatActivity() {
                     } else {
                         Toast.makeText(this, "Permission Denied", Toast.LENGTH_LONG).show()
                     }
-                } else
+                }
+                    else
                     if (requestCode == SHAREAFILE) {
                         if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                             shareAFIle()
@@ -1336,7 +1373,7 @@ class HomeActivity : AppCompatActivity() {
         Log.i(logtts, "destroy")
     }
 
-    private fun checkUser() {
+    fun checkUser() {
         //get current user
         val firebaseUser = firebaseAuth.currentUser
         if (firebaseUser == null) {
@@ -1348,7 +1385,7 @@ class HomeActivity : AppCompatActivity() {
             //get user info
             val acct = GoogleSignIn.getLastSignedInAccount(this)
             if (acct != null) {
-                val personName = acct.displayName
+                personName = acct.givenName.toString()
                 val personGivenName = acct.givenName
                 val personFamilyName = acct.familyName
                 val personEmail = acct.email

@@ -12,14 +12,14 @@
 
     <ImageView
         android:layout_marginTop="100dp"
-        android:src="@drawable/googleimage"
+        android:src="@drawable/iconssun"
         android:layout_width="100dp"
         android:layout_height="100dp"/>
     <TextView
         android:layout_marginTop="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to Voice Assistant"
+        android:text="Welcome to Sun Assistant"
         android:textSize="20sp"
         android:textColor="@color/black"
         android:textStyle="bold"/>
