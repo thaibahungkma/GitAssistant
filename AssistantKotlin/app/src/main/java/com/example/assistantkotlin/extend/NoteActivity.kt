@@ -80,12 +80,9 @@ class NoteActivity : AppCompatActivity() {
             finish()
         }
     }
-<<<<<<< HEAD
 
     override fun onBackPressed() {
         super.onBackPressed()
         startActivity(Intent(this, HomeActivity::class.java))
     }
-=======
->>>>>>> f7782d4ec82442c8ef9a87d7059229983822508b
 }

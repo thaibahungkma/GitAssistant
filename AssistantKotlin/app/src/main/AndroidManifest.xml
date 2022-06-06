@@ -68,9 +68,6 @@
             android:name=".assistant.SettingActivity"
             android:exported="false" />
         <activity
-            android:name=".SettingActivity"
-            android:exported="false" />
-        <activity
             android:name=".assistant.HomeActivity"
             android:exported="false" />
         <activity

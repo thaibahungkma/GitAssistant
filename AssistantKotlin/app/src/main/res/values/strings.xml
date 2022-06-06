@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AssistantKotlin</string>
+    <string name="app_name">Sun Assistant</string>
     <string name="settingsToolbar">Cài đặt</string>
     <string name="popular_settings">Cài đặt cơ bản</string>
     <string name="language_setting">Ngôn ngữ hệ thống</string>
