@@ -2,14 +2,17 @@ package com.example.assistantkotlin.extend
 
 import android.content.DialogInterface
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.text.TextUtils
 import android.util.Log
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.assistantkotlin.AES.AES
 import com.example.assistantkotlin.MainActivity
 import com.example.assistantkotlin.R
 import com.example.assistantkotlin.adapter.NoteAdapter
@@ -27,10 +30,12 @@ class EditNoteActivity : AppCompatActivity() {
     private lateinit var dbref: DatabaseReference
     private lateinit var firebaseAuth: FirebaseAuth
     private var user: FirebaseUser? = null
+    var aes: AES = AES()
 
     var noteTimeStamp: String? = null
     var noteTitle: String? = null
     var noteDescription: String? = null
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_note)
@@ -118,15 +123,17 @@ class EditNoteActivity : AppCompatActivity() {
             return e.toString()
         }
     }
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun upDateNote(){
         val NoteTitleUpdate=editNoteTitleEt.text.toString().trim()
         val NoteDescriptionUpdate=editNoteDescriptionEt.text.toString().trim()
         val uid=user?.uid
         dbref= FirebaseDatabase.getInstance().getReference("Note")
         if (!(TextUtils.isEmpty(NoteTitleUpdate) and TextUtils.isEmpty(NoteDescriptionUpdate))){
+            val NoteDescriptionUpdateEncry= aes.encrypt(NoteDescriptionUpdate,noteTimeStamp.plus(2299))
             var hashMap = mapOf<String,String>(
                 "noteTitle" to NoteTitleUpdate,
-                "noteDescription" to NoteDescriptionUpdate
+                "noteDescription" to NoteDescriptionUpdateEncry.toString()
             )
 
             dbref.child("$uid").child("$noteTimeStamp").updateChildren(hashMap).addOnSuccessListener {

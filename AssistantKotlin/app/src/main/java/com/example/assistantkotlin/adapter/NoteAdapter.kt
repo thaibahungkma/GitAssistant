@@ -2,12 +2,15 @@ package com.example.assistantkotlin.adapter
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
+import com.example.assistantkotlin.AES.AES
 import com.example.assistantkotlin.R
 import com.example.assistantkotlin.extend.EditNoteActivity
 import com.example.assistantkotlin.extend.NoteActivity
@@ -16,20 +19,22 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class NoteAdapter(private val noteList : ArrayList<ModelNote>) :RecyclerView.Adapter<NoteAdapter.MyViewHolder>() {
-
+    var aes: AES = AES()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val itemView=LayoutInflater.from(parent.context).inflate(R.layout.item_note,parent,false)
         return MyViewHolder(itemView)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val currentItem =noteList[position]
-        holder.noteTitle.text=currentItem.noteTitle
-        holder.noteDescription.text=currentItem.NoteDescription
         var time=currentItem.noteTime
+        val NoteDescriptionDecry=aes.decrypt(currentItem.NoteDescription,time.plus(2299))
+        holder.noteTitle.text=currentItem.noteTitle
+        holder.noteDescription.text=NoteDescriptionDecry
         var noteTitle=currentItem.noteTitle
-        var noteDescription=currentItem.NoteDescription
+        var noteDescription=NoteDescriptionDecry
         if (time != null) {
             var TimeDay=getDateTime(time)
             holder.noteTime.text=TimeDay

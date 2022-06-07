@@ -34,6 +34,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.example.assistantkotlin.AES.AES
 import com.example.assistantkotlin.MainActivity
 import com.example.assistantkotlin.R
 import com.example.assistantkotlin.data.AssistantDatabase
@@ -65,6 +66,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var keeper: String
 
     private lateinit var personName:String
+    var aes: AES = AES()
 
     private var REQUESTCALL = 1
     private var SENDSMS = 2
@@ -1078,7 +1080,6 @@ class HomeActivity : AppCompatActivity() {
 
 
     }
-
     private fun createNote() {
         isNote=true
         speak("Được chứ, vậy nội dung là gì")
@@ -1087,13 +1088,16 @@ class HomeActivity : AppCompatActivity() {
             Log.d("keeperRong",keeper)
             speechRecognizer.startListening(recognizerIntent)
             Handler().postDelayed({
-                upDbNote()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    upDbNote()
+                }
             }, 6000)
         }, 2500)
 
 
 
     }
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private fun upDbNote(){
         //up data to rtdb
         val uid=user?.uid
@@ -1106,7 +1110,7 @@ class HomeActivity : AppCompatActivity() {
             val noteTime=timestamp
             val hashMap = HashMap<Any, String>()
             hashMap.put("noteTitle",noteTitle)
-            hashMap.put("noteDescription",noteDescription)
+            hashMap.put("noteDescription",aes.encrypt(noteDescription,noteTime.plus(2299)).toString())
             hashMap.put("noteTime",noteTime)
             dbRef.child("$uid").child("$timestamp").setValue(hashMap).addOnSuccessListener {
                 speak("Đã thêm ghi chú thành công")
