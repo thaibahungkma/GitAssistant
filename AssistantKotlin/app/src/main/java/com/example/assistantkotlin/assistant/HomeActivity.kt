@@ -299,7 +299,7 @@ class HomeActivity : AppCompatActivity() {
                             keeper.lowercase().contains("hello") || keeper.contains("hi") || keeper.contains("hey")
                             -> speak("Hello, how I can help you?")
                             else -> if (isNote==false){
-                                speak("Sorry, please try again")
+                                googleSearchWithout()
                             }
                                 }
                     }
@@ -360,7 +360,7 @@ class HomeActivity : AppCompatActivity() {
                             -> speakNow("hello")
                             else ->
                                 if (isNote==false){
-                                    speak("Xin lỗi, vui lòng thử lại")
+                                    googleSearchWithout()
                                 }}
                     }
 
@@ -1080,6 +1080,32 @@ class HomeActivity : AppCompatActivity() {
 
 
     }
+    private fun googleSearchWithout() {
+        try {
+            if (savedRecognitionEnglish==true){
+                val intent=Intent(Intent.ACTION_WEB_SEARCH)
+                intent.putExtra(SearchManager.QUERY,keeper)
+                startActivity(intent)
+                speak("I found something you might need")
+            }
+            else{
+                val intent=Intent(Intent.ACTION_WEB_SEARCH)
+                intent.putExtra(SearchManager.QUERY,keeper)
+                startActivity(intent)
+                speak("Mình tìm được vài kết quả này trên mạng, bạn tham khảo nhé")
+            }
+        }
+        catch (google:Exception){
+            if (savedRecognitionEnglish==true){
+                speak("Try agian, ex: Search google Spider Man")
+            }else{
+                speak("Thử lại, ví dụ: Tìm google Học viện Kỹ thuật Mật Mã")
+            }
+        }
+
+
+
+    }
     private fun createNote() {
         isNote=true
         speak("Được chứ, vậy nội dung là gì")
@@ -1139,7 +1165,13 @@ class HomeActivity : AppCompatActivity() {
         val hour=getHour[0]//get hour String
         val HOUR=hour.toInt()
         // handling Minute
-        val minute=getHour[1]// get minute String
+        var minute:String
+        if (keeper.contains(":")){
+            minute=getHour[1]
+        }
+        else {
+            minute="00"
+        }
         val MINUTE=minute.toInt()
         //set alarm, intent to Alarm Clock
         val intent = Intent(AlarmClock.ACTION_SET_ALARM)
@@ -1150,7 +1182,7 @@ class HomeActivity : AppCompatActivity() {
         } else{
             speak("Thời gian bạn yêu cầu không chính xác, vui lòng thử lại")
         }
-        speak("Đã đặt báo thức lúc $HOUR giờ $MINUTE phút")
+        speak("OK, mình đã đặt báo thức giúp bạn lúc $HOUR giờ $MINUTE phút")
     }
     //get weather with Vietnamese recognition
     private fun GetCurrentWeatherData() {

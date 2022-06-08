@@ -6,28 +6,50 @@
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:background="@color/white"
+    android:background="@drawable/bg_main"
     android:padding="20dp"
     tools:context=".MainActivity">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:fontFamily="@font/carter_one"
+        android:text="Sun Assistant"
+        android:textColor="@color/black"
+        android:textSize="38sp"
+        android:textStyle="bold"/>
     <ImageView
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="10dp"
         android:src="@drawable/iconssun"
         android:layout_width="100dp"
         android:layout_height="100dp"/>
+
     <TextView
-        android:layout_marginTop="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to Sun Assistant"
-        android:textSize="20sp"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/roboto"
+        android:text="Always with you"
         android:textColor="@color/black"
-        android:textStyle="bold"/>
-    <com.google.android.gms.common.SignInButton
+        android:textStyle="italic"
+        android:textSize="20sp" />
 
+
+
+    <com.google.android.gms.common.SignInButton
         android:id="@+id/btnGoogleSignIn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"/>
+        android:layout_marginTop="110dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/roboto"
+        android:text="Sign in with Google Account"
+        android:textColor="@color/black"
+        android:textSize="15sp" />
 
 </LinearLayout>

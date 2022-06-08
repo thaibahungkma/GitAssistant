@@ -5,10 +5,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.format.DateFormat
+import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import com.example.assistantkotlin.MainActivity
 import com.example.assistantkotlin.R
 import com.example.assistantkotlin.fragment.RecognitionSettingFragment
+import com.example.assistantkotlin.fragment.WidgetFragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
@@ -25,6 +27,8 @@ class SettingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setting)
+
+        val zoomIn = AnimationUtils.loadAnimation(this, R.anim.zoom_in)
 
         //back btn setOnclick
         backToolbarBtn.setOnClickListener {
@@ -45,14 +49,21 @@ class SettingActivity : AppCompatActivity() {
         checkUser()
         //Logout btn
         LnLogout.setOnClickListener {
+            LnLogout.startAnimation(zoomIn)
             firebaseAuth.signOut()
             checkUser()
         }
 
         //Recognition language setting
         LnRecognitionLanguage.setOnClickListener {
+            LnRecognitionLanguage.startAnimation(zoomIn)
             var dialog = RecognitionSettingFragment()
             dialog.show(supportFragmentManager,"Recognition Language Setting")
+        }
+        LnWidget.setOnClickListener {
+            LnWidget.startAnimation(zoomIn)
+            var widgetDialog= WidgetFragment()
+            widgetDialog.show(supportFragmentManager,"Widget Setting")
         }
 
     }
