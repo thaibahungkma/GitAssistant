@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".extend.RemindActivity"
+    android:background="@color/bg"
+    android:orientation="vertical">
+    <include layout="@layout/tool_bar_remind"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense">
+
+        <EditText
+            android:id="@+id/remindTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text"
+            android:textColorHint="@color/text2"
+            android:hint="Tiêu đề: "/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense">
+
+        <EditText
+            android:id="@+id/remindDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text"
+            android:textColorHint="@color/text2"
+            android:hint="Lời nhắn: "/>
+
+    </LinearLayout>
+
+    <TextView
+        android:textColor="@color/text"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Thời gian"
+        android:textSize="20sp"
+        />
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp">
+        <DatePicker
+            android:background="@color/text2"
+            android:id="@+id/remindDatePick"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:datePickerMode="spinner"
+            android:calendarViewShown="false"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            android:layout_marginLeft="-30dp"
+            android:layout_marginRight="-30dp"
+            android:layout_gravity="center"
+            />
+        <TimePicker
+            android:background="@color/text2"
+            android:id="@+id/remindTimePick"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:timePickerMode="spinner"
+            android:calendarViewShown="false"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            android:layout_marginLeft="-30dp"
+            android:layout_marginRight="-30dp"
+            android:layout_gravity="center"
+            />
+        
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/remindSubmitButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/tim"
+        android:text="Lên lịch" />
+
+</LinearLayout>

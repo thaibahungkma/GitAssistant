@@ -40,6 +40,7 @@ import com.example.assistantkotlin.R
 import com.example.assistantkotlin.data.AssistantDatabase
 import com.example.assistantkotlin.databinding.ActivityHomeBinding
 import com.example.assistantkotlin.extend.NoteActivity
+import com.example.assistantkotlin.extend.RemindActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -140,6 +141,7 @@ class HomeActivity : AppCompatActivity() {
             openNoteIv.startAnimation(zoomIn)
         }
         OpenAnniversaryIV.setOnClickListener {
+            startActivity(Intent(this, RemindActivity::class.java))
             OpenAnniversaryIV.startAnimation(zoomIn)
         }
         openPlayListIv.setOnClickListener {
@@ -288,6 +290,7 @@ class HomeActivity : AppCompatActivity() {
                             keeper.lowercase().contains("bluetooth device") -> getAllPaireDevice()
                             keeper.lowercase().contains("turn on flash") -> turnOnFlash()
                             keeper.lowercase().contains("turn off flash") -> turnOffFlash()
+                            keeper.lowercase().contains("remind") ||keeper.lowercase().contains("notification")-> makeRemind()
                             keeper.lowercase().contains("copy to clipboard") -> clipBoardCopy()
                             keeper.lowercase().contains("read last clipboard") -> clipBoardSpeak()
                             keeper.lowercase().contains("capture a photo") || keeper.contains("Take a photo") -> capturePhoto()
@@ -352,6 +355,7 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("tim google") -> googleSearch()
                             ketqua.contains("tim youtube") -> youtubeSearch()
                             ketqua.contains("tao ghi chu")->createNote()
+                            ketqua.contains("tao nhac nho")||ketqua.contains("tao lich hen")->makeRemind()
                             ketqua.contains("mo ghi chu")||ketqua.contains("mo danh sach ghi chu")->openNote()
                             ketqua.contains("bat nhac nhe")||ketqua.contains("nhac ru ngu")
                                     ||ketqua.contains("thu gian")||ketqua.contains("nhac chill")->openChillMusic()
@@ -395,6 +399,7 @@ class HomeActivity : AppCompatActivity() {
         }
         checkIfSpeechRecognizerAvailable()
     }
+
 
 
 
@@ -532,6 +537,9 @@ class HomeActivity : AppCompatActivity() {
     }
     private fun openNote() {
         startActivity(Intent(this, NoteActivity::class.java))
+    }
+    private fun makeRemind() {
+        startActivity(Intent(this, RemindActivity::class.java))
     }
 
     private fun sendSMS() {

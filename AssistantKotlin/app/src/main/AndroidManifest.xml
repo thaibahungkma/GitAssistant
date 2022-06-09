@@ -53,7 +53,6 @@
         </intent>
     </queries>
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -61,6 +60,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AssistantKotlin">
+        <receiver android:name=".extend.Notification"
+            android:enabled="true"/>
+        <activity
+            android:name=".extend.RemindActivity"
+            android:exported="false" />
         <activity
             android:name=".extend.EditNoteActivity"
             android:exported="false" />
@@ -82,17 +86,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service
-            android:name="com.example.assistantkotlin.extend.FloatingViewService"
-            android:exported="false"
+            android:name=".extend.FloatingViewService"
             android:enabled="true"
-            android:foregroundServiceType="mediaProjection"
-            />
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
     </application>
 
 </manifest>
