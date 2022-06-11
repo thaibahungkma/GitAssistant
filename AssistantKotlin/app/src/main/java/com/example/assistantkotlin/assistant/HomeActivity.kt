@@ -6,6 +6,7 @@ import android.app.SearchManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.*
+import android.content.ContentValues.TAG
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraManager
 import android.media.Ringtone
@@ -50,6 +51,10 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_home.*
 import org.json.JSONException
 import org.json.JSONObject
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 import java.io.File
 import java.io.IOException
 import java.text.DateFormat
@@ -339,12 +344,12 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("mo google map")||ketqua.contains("mo ban do")-> openGoogleMap()
                             ketqua.contains("share a file") -> shareAFIle()
                             ketqua.contains("share a text message") -> shareATextMessage()
-                            ketqua.contains("goi danh ba") -> callContact()
+                            ketqua.contains("goi cho") -> callContact()
                             ketqua.contains("bat bluetooth") -> turnOnBluetooth()
                             ketqua.contains("tat bluetooth") -> turnOffBluetooth()
                             ketqua.contains("thiet bi bluetooth") -> getAllPaireDevice()
-                            ketqua.contains("bat flash") ||ketqua.contains("bat den pin")-> turnOnFlash()
-                            ketqua.contains("tat flash") ||ketqua.contains("tat den pin")-> turnOffFlash()
+                            ketqua.contains("bat flash") ||ketqua.contains("bat den flash") ||ketqua.contains("bat den pin")-> turnOnFlash()
+                            ketqua.contains("tat flash") ||ketqua.contains("tat den flash") ||ketqua.contains("tat den pin")-> turnOffFlash()
                             ketqua.contains("copy vao bo nho") ||ketqua.contains("sao chep")-> clipBoardCopy()
                             ketqua.contains("doc bo nho tam") -> clipBoardSpeak()
                             ketqua.contains("chup anh") || ketqua.contains("may anh") -> capturePhoto()
@@ -355,6 +360,7 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("tim google") -> googleSearch()
                             ketqua.contains("tim youtube") -> youtubeSearch()
                             ketqua.contains("tao ghi chu")->createNote()
+                            ketqua.contains("bang bao nhieu")||ketqua.contains("bang may")->caculator()
                             ketqua.contains("tao nhac nho")||ketqua.contains("tao lich hen")->makeRemind()
                             ketqua.contains("mo ghi chu")||ketqua.contains("mo danh sach ghi chu")->openNote()
                             ketqua.contains("bat nhac nhe")||ketqua.contains("nhac ru ngu")
@@ -539,6 +545,7 @@ class HomeActivity : AppCompatActivity() {
         startActivity(Intent(this, NoteActivity::class.java))
     }
     private fun makeRemind() {
+        speak("OK, mời bạn tạo nhắc nhở")
         startActivity(Intent(this, RemindActivity::class.java))
     }
 
@@ -690,6 +697,41 @@ class HomeActivity : AppCompatActivity() {
         }
         val intent = packageManager.getLaunchIntentForPackage("com.google.android.gm")
         intent?.let { startActivity(it) }
+    }
+    private fun caculator(){
+        getJsoup().execute()
+
+    }
+    inner class getJsoup: AsyncTask<Void,String,String>(){
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+        }
+        override fun doInBackground(vararg p0: Void?): String {
+            var keeperReplace=keeper.replace("nhân".toRegex(),"x").replace("+","%2B").replace("chia".toRegex(),"/")
+            var url ="https://www.google.com/search?q=$keeperReplace"
+            val document : Document
+            val element: Elements
+            val ketqua:String
+            try {
+                 document= Jsoup.connect(url).get()
+                 element= document.getElementsByClass("qv3Wpe")
+                 ketqua=element.text().toString()
+                return ketqua
+            }
+            catch (jsoup:Exception){
+                return null.toString()
+                Log.d(TAG, "doInBackground: null")
+            }
+
+        }
+
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+            speak("Kết quả là $result")
+            Log.d(TAG, "onPostExecute: $result ")
+        }
+
     }
 
     private fun openYoutube() {
@@ -850,7 +892,13 @@ class HomeActivity : AppCompatActivity() {
                 READCONTACTS
             )
         } else {
-            val name = keeper.split("call").toTypedArray()[1].trim { it <= ' ' }
+            val numberList = keeper.split(" ")
+            val size=numberList.size
+            var nameUn=""
+            for (i in 2 until size){
+                nameUn=nameUn+" "+numberList[i]
+            }
+            var name=nameUn.trim()
             Log.d("chk", name)
             try {
                 val cursor = contentResolver.query(
@@ -874,15 +922,16 @@ class HomeActivity : AppCompatActivity() {
                         )
                     } else {
                         val dial = "tel:$number"
+                        speak("Đang gọi cho $name")
                         startActivity(Intent(Intent.ACTION_CALL, Uri.parse(dial)))
                     }
                 } else {
-                    Toast.makeText(this, "Enter Phone Number", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Vui lòng nhập số điện thoại", Toast.LENGTH_LONG).show()
                 }
 
             } catch (contact: Exception) {
                 contact.printStackTrace()
-                speak("Something when wrong")
+                speak("Mình không tìm được tên bạn yêu cầu")
             }
         }
 
@@ -1100,7 +1149,7 @@ class HomeActivity : AppCompatActivity() {
                 val intent=Intent(Intent.ACTION_WEB_SEARCH)
                 intent.putExtra(SearchManager.QUERY,keeper)
                 startActivity(intent)
-                speak("Mình tìm được vài kết quả này trên mạng, bạn tham khảo nhé")
+                speak("Sau đây là một số kết quả mình tìm được")
             }
         }
         catch (google:Exception){
