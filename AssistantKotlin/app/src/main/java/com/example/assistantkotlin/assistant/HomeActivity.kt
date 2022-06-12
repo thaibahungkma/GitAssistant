@@ -318,10 +318,11 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("cam on") -> speakNow("cam on")
                             ketqua.contains("hat bai")||ketqua.contains("hat mot bai")||ketqua.contains("sing a song")
                             -> speakNow("hat")
+                            ketqua.contains("alo") -> speak("Mình nghe")
                             ketqua.contains("choi game") -> speakNow("choi game")
                             ketqua.contains("ban co doi bung") -> speakNow("doi bung")
                             ketqua.contains("anh yeu em") ||ketqua.contains("toi yeu ban") || ketqua.contains("em yeu anh")-> speakNow("yeu")
-                            ketqua.contains("ten ban") -> speak("Tên tôi là trợ lý Sun")
+                            ketqua.contains("ten ban") -> speak("Tên mình là trợ lý Sun")
                             ketqua.contains("tao ra ban") ||ketqua.contains("tao ban")||ketqua.contains("lap trinh ban")-> speak("Anh Hùng đẹp trai lập trình nên tôi lúc làm đồ án đấy")
                             ketqua.contains("xoa chat") -> assistantViewModel.onClear()
                             ketqua.contains("hom nay ngay bao nhieu") ||ketqua.contains("hom nay la ngay bao nhieu")||ketqua.contains("hom nay ngay may")||ketqua.contains("ngay thang")-> getDate()
@@ -360,6 +361,7 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("tim google") -> googleSearch()
                             ketqua.contains("tim youtube") -> youtubeSearch()
                             ketqua.contains("tao ghi chu")->createNote()
+                            ketqua.contains("la gi")||ketqua.contains("la ai")->getJsoupWhat().execute()
                             ketqua.contains("bang bao nhieu")||ketqua.contains("bang may")->caculator()
                             ketqua.contains("tao nhac nho")||ketqua.contains("tao lich hen")->makeRemind()
                             ketqua.contains("mo ghi chu")||ketqua.contains("mo danh sach ghi chu")->openNote()
@@ -524,10 +526,10 @@ class HomeActivity : AppCompatActivity() {
                 } else {
                     val dial = "tel:$number"
                     if (savedRecognitionEnglish==true){
-                        speak("Calling $number")
+                        assistantViewModel.sendMessageToDatabase("Calling $number",keeper)
                     }
                     else{
-                        speak("Đang gọi cho số̀ $number")
+                        assistantViewModel.sendMessageToDatabase("Đang gọi cho $number",keeper)
                     }
 
                     startActivity(Intent(Intent.ACTION_CALL, Uri.parse(dial)))
@@ -734,6 +736,44 @@ class HomeActivity : AppCompatActivity() {
 
     }
 
+    inner class getJsoupWhat: AsyncTask<Void,String,String>(){
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+        }
+        override fun doInBackground(vararg p0: Void?): String {
+            var url ="https://www.google.com/search?q=$keeper"
+            val document : Document
+            val element: Elements
+            val ketqua:String
+            try {
+                document= Jsoup.connect(url).get()
+                element= document.getElementsByClass("kno-rdesc").removeClass("Uo8X3b OhScic zsYMMe").removeClass("ruhjFe NJLBac fl")
+                ketqua=element.text().replace("Wikipedia".toRegex(),"")
+                return ketqua
+            }
+            catch (jsoup:Exception){
+                return null.toString()
+                Log.d(TAG, "doInBackground: null")
+            }
+
+        }
+
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+            if (result==""){
+                Log.d(TAG, "onPostExecute: $result ")
+                googleSearchWithout()
+            } else{
+                speak("$result")
+                Log.d(TAG, "onPostExecute: $result ")
+            }
+
+
+        }
+
+    }
+
     private fun openYoutube() {
         if (savedRecognitionEnglish==true){
             speak("Opening Youtube")
@@ -765,11 +805,6 @@ class HomeActivity : AppCompatActivity() {
 
     }
     private fun openChillMusic(){
-//         id1="BUbSpHCVK0Q"
-//         id2="ROy57arUE1s"
-//         id3="EBSegrHpreY"
-//         id4="bP9gMpl1gyQ"
-//         id5 "FLHfYUdvfqk"
         var id:String?=null
         var rd=Random()
         var x=rd.nextInt(5);
@@ -896,10 +931,10 @@ class HomeActivity : AppCompatActivity() {
             val size=numberList.size
             var nameUn=""
             for (i in 2 until size){
-                nameUn=nameUn+" "+numberList[i]
+                nameUn=nameUn+" "+numberList[i].capitalize()
             }
             var name=nameUn.trim()
-            Log.d("chk", name)
+            Log.d("chk",name)
             try {
                 val cursor = contentResolver.query(
                     ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -922,7 +957,7 @@ class HomeActivity : AppCompatActivity() {
                         )
                     } else {
                         val dial = "tel:$number"
-                        speak("Đang gọi cho $name")
+                        assistantViewModel.sendMessageToDatabase("Đang gọi cho $name",keeper)
                         startActivity(Intent(Intent.ACTION_CALL, Uri.parse(dial)))
                     }
                 } else {
