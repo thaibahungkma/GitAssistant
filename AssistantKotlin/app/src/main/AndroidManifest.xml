@@ -60,8 +60,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AssistantKotlin">
-        <receiver android:name=".extend.Notification"
-            android:enabled="true"/>
+        <activity
+            android:name=".extend.SuggestActivity"
+            android:exported="false" />
+
+        <receiver
+            android:name=".extend.Notification"
+            android:enabled="true" />
+
         <activity
             android:name=".extend.RemindActivity"
             android:exported="false" />

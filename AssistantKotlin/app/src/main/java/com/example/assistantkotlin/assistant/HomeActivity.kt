@@ -42,6 +42,7 @@ import com.example.assistantkotlin.data.AssistantDatabase
 import com.example.assistantkotlin.databinding.ActivityHomeBinding
 import com.example.assistantkotlin.extend.NoteActivity
 import com.example.assistantkotlin.extend.RemindActivity
+import com.example.assistantkotlin.extend.SuggestActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -154,6 +155,7 @@ class HomeActivity : AppCompatActivity() {
         }
         openSuggestIv.setOnClickListener {
             openSuggestIv.startAnimation(zoomIn)
+            startActivity(Intent(this, SuggestActivity::class.java))
         }
 
         //init firebase auth

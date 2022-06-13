@@ -30,15 +30,19 @@
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/activity_note.xml" value="0.18" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/activity_remind.xml" value="0.2" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/activity_setting.xml" value="0.2" />
+        <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/activity_suggest.xml" value="0.16" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/assistant_item_layout.xml" value="0.2" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/fragment_recognition_setting_dialog.xml" value="0.18" />
+        <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/fragment_suggest.xml" value="0.15726495726495726" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/fragment_widget.xml" value="0.16" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/item_note.xml" value="0.22" />
+        <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/list_item.xml" value="0.2" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/overlay_layout.xml" value="0.33" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/tool_bar.xml" value="0.15726495726495726" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/tool_bar_editnote.xml" value="0.18" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/tool_bar_note.xml" value="0.15726495726495726" />
         <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/tool_bar_remind.xml" value="0.15726495726495726" />
+        <entry key="..\:/DoAn/GitAssistant/AssistantKotlin/app/src/main/res/layout/tool_bar_suggest.xml" value="0.10461956521739131" />
       </map>
     </option>
   </component>
