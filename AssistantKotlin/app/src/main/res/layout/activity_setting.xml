@@ -48,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="50dp"
             android:text="@string/popular_settings"
             android:textColor="@color/text"
             android:textSize="25sp"
@@ -183,38 +183,7 @@
             </LinearLayout>
 
         </LinearLayout>
-        <LinearLayout
-            android:id="@+id/LnContact"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:src="@drawable/ic_contact_phone"
-                android:padding="12dp"
-                app:tint="@color/text"
-                android:layout_width="60dp"
-                android:layout_height="60dp"/>
-            <LinearLayout
-                android:layout_marginStart="5dp"
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:text="Danh bạ"
-                    android:textSize="20sp"
-                    android:textColor="@color/text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="15sp"
-                    android:text="Danh sách liên hệ"
-                    android:textColor="@color/text2"/>
-            </LinearLayout>
 
-        </LinearLayout>
         <LinearLayout
             android:id="@+id/LnLogout"
             android:layout_marginTop="12dp"

@@ -101,7 +101,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var imgUri: Uri
     private var savedRecognitionEnglish:Boolean = true
     private var isNote:Boolean=false
-
+    private lateinit var numberSMS: String
     //firebase auth
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var dbRef: DatabaseReference
@@ -152,6 +152,8 @@ class HomeActivity : AppCompatActivity() {
         }
         openPlayListIv.setOnClickListener {
             openPlayListIv.startAnimation(zoomIn)
+            assistantViewModel.onClear()
+            Toast.makeText(this, "Đã xóa lịch sử trò chuyện", Toast.LENGTH_SHORT).show()
         }
         openSuggestIv.setOnClickListener {
             openSuggestIv.startAnimation(zoomIn)
@@ -330,7 +332,7 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("hom nay ngay bao nhieu") ||ketqua.contains("hom nay la ngay bao nhieu")||ketqua.contains("hom nay ngay may")||ketqua.contains("ngay thang")-> getDate()
                             ketqua.contains("may gio")||ketqua.contains("xem gio") -> getTime()
                             ketqua.contains("goi so")||ketqua.contains("goi dien so") -> makeNumberCall()
-                            ketqua.contains("gui sms") -> sendSMS()
+                            ketqua.contains("nhan tin cho") -> sendSMS2()
                             ketqua.contains("doc tin nhan vua nhan")||ketqua.contains("tin nhan gan nhat")||ketqua.contains("doc tin nhan nhan")||ketqua.contains("doc hop thu den gan nhat") -> readSMS()
                             ketqua.contains("mo gmail") -> openGmail()
                             ketqua.contains("mo facebook") -> openFaceBook()
@@ -555,29 +557,29 @@ class HomeActivity : AppCompatActivity() {
 
     private fun sendSMS() {
         try {
-            Log.d("keeper", "Done0")
             if (ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.SEND_SMS
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.SEND_SMS), SENDSMS)
-                Log.d("keeper", "Done1")
             } else {
-                Log.d("keeper", "Done2")
-                val keeperReplaced = keeper.replace(" ".toRegex(), "")
-                val number = keeperReplaced.split("i").toTypedArray()[2].split("l").toTypedArray()[0]
-                val message = keeper.split("là").toTypedArray()[1]
-                Log.d("smsSend", number + message)
-                val mySmsManager = SmsManager.getDefault()
-                mySmsManager.sendTextMessage(
-                    number.trim { it <= ' ' }, null, message.trim() { it <= ' ' }, null, null
-                )
-                speak("Tin nhắn đã gửi là $message")
+                if (keeper==""){
+                    speak("Mình không nhận được nội dung tin nhắn, bạn vui lòng thử lại")
+                    Toast.makeText(this, "Không nhận được nội dung tin nhắn", Toast.LENGTH_SHORT).show()
+                } else{
+                    val mySmsManager = SmsManager.getDefault()
+                    mySmsManager.sendTextMessage(
+                        numberSMS.trim { it <= ' ' }, null, keeper.trim() { it <= ' ' }, null, null
+                    )
+                    speak("Đã gửi tin nhắn thành công")
+                }
+
+                isNote=false
             }
         }
         catch (sendSMS:Exception){
-            speak("Thử lại, ví dụ: Gửi sms tới 191 là Hẹn gặp lại")
+            speak("Xin lỗi, đã có lỗi xảy ra")
         }
 
     }
@@ -973,6 +975,54 @@ class HomeActivity : AppCompatActivity() {
         }
 
     }
+    fun sendSMS2() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS),
+                READCONTACTS
+            )
+        } else {
+            val numberList = keeper.split(" ")
+            val size = numberList.size
+            var nameUn = ""
+            for (i in 3 until size) {
+                nameUn = nameUn + " " + numberList[i].capitalize()
+            }
+            val name = nameUn.trim()
+            try {
+                val cursor = contentResolver.query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                    arrayOf(
+                        ContactsContract.CommonDataKinds.Phone.NUMBER,
+                        ContactsContract.CommonDataKinds.Phone
+                            .TYPE
+                    ), "DISPLAY_NAME='$name'", null, null
+                )
+                cursor!!.moveToFirst()
+                numberSMS = cursor.getString(0)
+                speak("Ok, vậy nội dung gửi cho $name là gì ?")
+                Handler().postDelayed({
+                    keeper = ""
+                    Log.d("keeperRong", keeper)
+                    isNote=true
+                    speechRecognizer.startListening(recognizerIntent)
+                    Handler().postDelayed({
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            sendSMS()
+                        }
+                    }, 6000)
+                }, 3600)
+            }
+            catch (sendSMS2:Exception){
+                speak("Xin lỗi, mình không tìm thấy tên trong danh bạ")
+            }
+        }
+
+
+    }
 
     private fun turnOnBluetooth() {
         if (!bluetoothAdapter.isEnabled()) {
@@ -1234,9 +1284,12 @@ class HomeActivity : AppCompatActivity() {
             hashMap.put("noteTime",noteTime)
             dbRef.child("$uid").child("$timestamp").setValue(hashMap).addOnSuccessListener {
                 speak("Đã thêm ghi chú thành công")
+                isNote=false
             }.addOnFailureListener {
                 Toast.makeText(this, "Thêm ghi chú thất bại", Toast.LENGTH_SHORT).show()
+                isNote=false
             }
+
         }
         else{
             Toast.makeText(this, "Không nhận được nội dung ghi chú", Toast.LENGTH_SHORT).show()
@@ -1438,6 +1491,7 @@ class HomeActivity : AppCompatActivity() {
                             if (requestCode == READCONTACTS) {
                                 if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                                     callContact()
+                                    sendSMS2()
                                 } else {
                                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_LONG)
                                         .show()
