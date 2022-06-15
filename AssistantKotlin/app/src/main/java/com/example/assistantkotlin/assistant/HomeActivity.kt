@@ -16,6 +16,7 @@ import android.os.*
 import android.provider.AlarmClock
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.provider.Settings.Global.putString
 import android.provider.Telephony
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -186,12 +187,18 @@ class HomeActivity : AppCompatActivity() {
         ) {
             checkPermission()
         }
+        val sharedPreferences = this.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+        val editor= sharedPreferences?.edit()
+        editor?.apply {
+            putString("recognition","Vietnamese")
+        }?.apply()
+
 
         //get key value from share preferences recognition
-        val sharedPreferences = getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
         val savedRecognition=sharedPreferences?.getString("recognition",null)
         if (savedRecognition=="English") {
-            savedRecognitionEnglish=true }
+            savedRecognitionEnglish=true
+        }
         else if (savedRecognition=="Vietnamese"){
             savedRecognitionEnglish=false
         }
@@ -315,7 +322,7 @@ class HomeActivity : AppCompatActivity() {
                             }
                                 }
                     }
-                    else if (savedRecognition=="Vietnamese"){
+                    else {
                         var ketqua=convert(keeper)!!.lowercase()
                         when {
                             ketqua.contains("gioi thieu") -> speakNow("gioi thieu")
@@ -332,6 +339,7 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("hom nay ngay bao nhieu") ||ketqua.contains("hom nay la ngay bao nhieu")||ketqua.contains("hom nay ngay may")||ketqua.contains("ngay thang")-> getDate()
                             ketqua.contains("may gio")||ketqua.contains("xem gio") -> getTime()
                             ketqua.contains("goi so")||ketqua.contains("goi dien so") -> makeNumberCall()
+                            ketqua.contains("gui tin nhan cho")->convertKeeper(1)
                             ketqua.contains("nhan tin cho") -> sendSMS2()
                             ketqua.contains("doc tin nhan vua nhan")||ketqua.contains("tin nhan gan nhat")||ketqua.contains("doc tin nhan nhan")||ketqua.contains("doc hop thu den gan nhat") -> readSMS()
                             ketqua.contains("mo gmail") -> openGmail()
@@ -369,6 +377,7 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("bang bao nhieu")||ketqua.contains("bang may")->caculator()
                             ketqua.contains("tao nhac nho")||ketqua.contains("tao lich hen")->makeRemind()
                             ketqua.contains("mo ghi chu")||ketqua.contains("mo danh sach ghi chu")->openNote()
+                            ketqua.contains("xem goi y")||ketqua.contains("mo goi y")->openSuggest()
                             ketqua.contains("bat nhac nhe")||ketqua.contains("nhac ru ngu")
                                     ||ketqua.contains("thu gian")||ketqua.contains("nhac chill")->openChillMusic()
                             ketqua.contains("nhac son tung") || ketqua.contains("nhac sep")->openSonTungMusic()
@@ -412,7 +421,12 @@ class HomeActivity : AppCompatActivity() {
         checkIfSpeechRecognizerAvailable()
     }
 
+    private fun convertKeeper(i: Int) {
+        if(i==1){
+            speak("Mời bạn thử lại câu lệnh, ví dụ: Nhắn tin cho Hùng")
+        }
 
+    }
 
 
     fun convert(str: String): String? {
@@ -450,7 +464,7 @@ class HomeActivity : AppCompatActivity() {
             assistantViewModel.sendMessageToDatabase(text,keeper)
         }
         catch (speak:Exception){
-            Log.d("Error","skip")
+            Log.d("Errorspeak","skip")
         }
 
     }
@@ -477,7 +491,7 @@ class HomeActivity : AppCompatActivity() {
             assistantViewModel.sendMessageToDatabase(textVoice,keeper)
         }
         catch (speak:Exception){
-            Log.d("Error","skip")
+            Log.d("ErrorSpeakNow","skip")
         }
 
     }
@@ -543,12 +557,16 @@ class HomeActivity : AppCompatActivity() {
             }
         }
         catch (call:Exception){
-                speak("Xin thử lại, ví dụ: Gọi số 0987654321")
+
         }
 
     }
     private fun openNote() {
         startActivity(Intent(this, NoteActivity::class.java))
+    }
+
+    private fun openSuggest() {
+        startActivity(Intent(this, SuggestActivity::class.java))
     }
     private fun makeRemind() {
         speak("OK, mời bạn tạo nhắc nhở")
@@ -1131,9 +1149,18 @@ class HomeActivity : AppCompatActivity() {
         val item = clipboardManager.primaryClip!!.getItemAt(0)
         val pasteData = item.text.toString()
         if (pasteData != "") {
-            speak("Data stored in last clipboard is" + pasteData)
+            if (savedRecognitionEnglish==true){
+                speak("Data stored in last clipboard is " + pasteData)
+            } else{
+                speak("Dữ liệu được ghi nhớ là " + pasteData)
+            }
+
         } else {
-            speak("Clipboard is Empty")
+            if (savedRecognitionEnglish==true){
+                speak("Data is empty")
+            } else{
+                speak("Bộ nhớ hiện đang rỗng ")
+            }
         }
     }
 
@@ -1540,9 +1567,15 @@ class HomeActivity : AppCompatActivity() {
         }
         if (requestCode == REQUEST_ENABLE_BT) {
             if (resultCode == RESULT_OK) {
-                speak("Bluetooth is on")
+                Log.d("TAGBluetooth", "onActivityResult: Bluetooth On")
             } else {
-                speak("Could not able to turn on Bluetooth")
+                if (savedRecognitionEnglish==true){
+                    speak("Could not able to turn on Bluetooth")
+                }
+                else{
+                    speak("Mình chưa được cấp quyền bật Bluetooth")
+                }
+
             }
         }
     }

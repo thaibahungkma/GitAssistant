@@ -42,7 +42,7 @@ class NoteAdapter(private val noteList : ArrayList<ModelNote>) :RecyclerView.Ada
         holder.itemView.setOnClickListener {
             val intent = Intent(it.context,EditNoteActivity::class.java)
             //        init animation
-            val turnRight = AnimationUtils.loadAnimation(it.context, R.anim.anim_turn_right)
+            val turnRight = AnimationUtils.loadAnimation(it.context, R.anim.zoom_in)
             intent.putExtra("noteTimeStamp",time)
             intent.putExtra("noteTitle",noteTitle)
             intent.putExtra("noteDescription",noteDescription)
