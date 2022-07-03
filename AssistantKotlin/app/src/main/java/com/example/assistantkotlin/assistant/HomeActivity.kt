@@ -187,14 +187,11 @@ class HomeActivity : AppCompatActivity() {
         ) {
             checkPermission()
         }
-        val sharedPreferences = this.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
-        val editor= sharedPreferences?.edit()
-        editor?.apply {
-            putString("recognition","Vietnamese")
-        }?.apply()
+
 
 
         //get key value from share preferences recognition
+        val sharedPreferences = getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
         val savedRecognition=sharedPreferences?.getString("recognition",null)
         if (savedRecognition=="English") {
             savedRecognitionEnglish=true
@@ -330,6 +327,8 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("hat bai")||ketqua.contains("hat mot bai")||ketqua.contains("sing a song")
                             -> speakNow("hat")
                             ketqua.contains("alo") -> speak("Mình nghe")
+                            ketqua.contains("toi la ai")||ketqua.contains("ten toi la gi")
+                                    ||ketqua.contains("do ban biet ten cua toi")-> speak("Nếu mình không nhầm, thì tên bạn là $personName")
                             ketqua.contains("choi game") -> speakNow("choi game")
                             ketqua.contains("ban co doi bung") -> speakNow("doi bung")
                             ketqua.contains("anh yeu em") ||ketqua.contains("toi yeu ban") || ketqua.contains("em yeu anh")-> speakNow("yeu")
@@ -373,11 +372,12 @@ class HomeActivity : AppCompatActivity() {
                             ketqua.contains("tim google") -> googleSearch()
                             ketqua.contains("tim youtube") -> youtubeSearch()
                             ketqua.contains("tao ghi chu")->createNote()
+                            ketqua.contains("day la dau")||ketqua.contains("toi dang o dau")||ketqua.contains("vi tri cua toi")->getJsoupWhere().execute()
                             ketqua.contains("la gi")||ketqua.contains("la ai")->getJsoupWhat().execute()
                             ketqua.contains("bang bao nhieu")||ketqua.contains("bang may")->caculator()
                             ketqua.contains("tao nhac nho")||ketqua.contains("tao lich hen")->makeRemind()
                             ketqua.contains("mo ghi chu")||ketqua.contains("mo danh sach ghi chu")->openNote()
-                            ketqua.contains("xem goi y")||ketqua.contains("mo goi y")->openSuggest()
+                            ketqua.contains("xem goi y")||ketqua.contains("goi y")||ketqua.contains("mo goi y")->openSuggest()
                             ketqua.contains("bat nhac nhe")||ketqua.contains("nhac ru ngu")
                                     ||ketqua.contains("thu gian")||ketqua.contains("nhac chill")->openChillMusic()
                             ketqua.contains("nhac son tung") || ketqua.contains("nhac sep")->openSonTungMusic()
@@ -473,17 +473,14 @@ class HomeActivity : AppCompatActivity() {
             var textVoice:String
             when (text){
                 "hello"-> textVoice="Chào $personName, bạn có cần mình giúp gì không ? "
-                "gioi thieu"->textVoice="Chào $personName, mình là trợ lý Sun. Mình có thể giúp bạn thực hiện một số công việc, $personName hãy ra lệnh cho mình bằng giọng nói nhé"
+                "gioi thieu"->textVoice="Mình là trợ lý Sun. Mình có thể giúp bạn thực hiện một số công việc, $personName hãy ra lệnh cho mình bằng giọng nói nhé"
                 "cam on"->textVoice="Không có gì, nhiệm vụ của mình là giúp đỡ $personName mà \uD83D\uDE0A"
                 "choi game"->textVoice="Mình cũng thích chơi game lắm. Chờ mình thông minh hơn rồi mình sẽ chơi với bạn nhé"
                 "doi bung"->textVoice="Mình không ăn cơm nên không đói, nhưng bạn nhớ sạc pin điện thoại để mình luôn khỏe mạnh nhé"
                 "yeu"->textVoice="$personName đang tỏ tình với mình đấy à, mình đồng ý \uD83E\uDD70"
                 "hat"->textVoice="""Cơ hội cho mình thể hiện đây rồi, mời $personName lắng nghe nhé
-                    | Cầm tay anh, dựa vai anh
-                    | Kề bên anh nơi này có anh
-                    | Khép đôi mi thật lâu
-                    | Nguyện mãi bên cạnh nhau
-                    | Yêu say đắm như ngày đầu
+                    | Một con vịt xòe ra hai cái cánh
+                    | Nó kêu rằng quác quác quác, quạc quạc quạc
                 """.trimMargin()
                 else -> textVoice="Xin lỗi, hiện tại mình chưa được học câu lệnh này"
             }
@@ -566,6 +563,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun openSuggest() {
+        speak("Đây là gợi ý những câu lệnh bạn có thể yêu cầu cho mình")
         startActivity(Intent(this, SuggestActivity::class.java))
     }
     private fun makeRemind() {
@@ -788,6 +786,43 @@ class HomeActivity : AppCompatActivity() {
                 googleSearchWithout()
             } else{
                 speak("$result")
+                Log.d(TAG, "onPostExecute: $result ")
+            }
+
+
+        }
+
+    }
+    inner class getJsoupWhere: AsyncTask<Void,String,String>(){
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+        }
+        override fun doInBackground(vararg p0: Void?): String {
+            var url ="https://www.google.com/search?q=$keeper"
+            val document : Document
+            val element: Elements
+            val ketqua:String
+            try {
+                document= Jsoup.connect(url).get()
+                element= document.getElementsByClass("desktop-title-content")
+                ketqua=element.text().toString()
+                return ketqua
+            }
+            catch (jsoup:Exception){
+                return null.toString()
+                Log.d(TAG, "doInBackground: null")
+            }
+
+        }
+
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+            if (result==""){
+                Log.d(TAG, "onPostExecute: $result ")
+                googleSearchWithout()
+            } else{
+                speak("Bạn đang ở $result")
                 Log.d(TAG, "onPostExecute: $result ")
             }
 

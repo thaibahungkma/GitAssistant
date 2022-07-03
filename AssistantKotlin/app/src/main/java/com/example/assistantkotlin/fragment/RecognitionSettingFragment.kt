@@ -12,6 +12,7 @@ import androidx.fragment.app.DialogFragment
 import com.example.assistantkotlin.R
 import com.example.assistantkotlin.assistant.HomeActivity
 import com.example.assistantkotlin.assistant.SettingActivity
+import kotlinx.android.synthetic.main.activity_setting.*
 import kotlinx.android.synthetic.main.fragment_recognition_setting_dialog.*
 import kotlinx.android.synthetic.main.fragment_recognition_setting_dialog.view.*
 
